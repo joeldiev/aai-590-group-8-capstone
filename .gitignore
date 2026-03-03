@@ -1,0 +1,44 @@
+# Data (too large for git)
+data/raw/
+data/processed/
+*.parquet
+*.arrow
+*.csv
+!data/.gitkeep
+
+# Models
+models/
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.eggs/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment
+.env
+.venv/
+env/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
