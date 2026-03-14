@@ -33,6 +33,9 @@ build/
 env/
 venv/
 
+# Local context (not for git)
+docs/local/
+
 # OS
 .DS_Store
 Thumbs.db
