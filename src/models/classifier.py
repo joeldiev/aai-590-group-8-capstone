@@ -40,6 +40,7 @@ def load_trained_classifier(
         num_labels=num_labels,
         id2label=ID2LABEL,
         label2id=LABEL2ID,
+        local_files_only=True,
     )
     return model
 

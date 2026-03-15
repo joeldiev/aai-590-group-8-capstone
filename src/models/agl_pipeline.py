@@ -65,8 +65,8 @@ class AGLPipeline:
         if device is None:
             device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        model = AutoModelForSequenceClassification.from_pretrained(checkpoint_path)
-        tokenizer = AutoTokenizer.from_pretrained(checkpoint_path)
+        model = AutoModelForSequenceClassification.from_pretrained(checkpoint_path, local_files_only=True)
+        tokenizer = AutoTokenizer.from_pretrained(checkpoint_path, local_files_only=True)
 
         anomaly_detector = None
         if anomaly_path and Path(anomaly_path).exists():

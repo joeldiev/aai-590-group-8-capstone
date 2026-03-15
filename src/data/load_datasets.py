@@ -39,15 +39,6 @@ def load_jailbreakv28k() -> pd.DataFrame:
 
 # ── Phase B loaders ────────────────────────────────────────────────────────
 
-def load_lakera_mosaic() -> pd.DataFrame:
-    """Lakera/mosaic_prompt_injection — multi-category injection dataset."""
-    ds = load_dataset("Lakera/mosaic_prompt_injection")
-    df = ds["train"].to_pandas()
-    df = df.rename(columns={"prompt": "text", "label": "original_label"})
-    df["source"] = "lakera_mosaic"
-    return df[["text", "source", "original_label"]]
-
-
 def load_hackaprompt() -> pd.DataFrame:
     """hackaprompt — filter to correct=True (successful injections only).
     Uses 'user_input' as the prompt text."""
@@ -101,18 +92,6 @@ def load_awesome_chatgpt_prompts() -> pd.DataFrame:
     return df[["text", "source", "original_label"]]
 
 
-def load_verazuo() -> pd.DataFrame:
-    """verazuo/jailbreak_llms — jailbreak prompts dataset."""
-    ds = load_dataset("verazuo/jailbreak_llms")
-    df = ds["train"].to_pandas()
-    df = df.rename(columns={"prompt": "text"})
-    df["source"] = "verazuo"
-    df["original_label"] = "jailbreak"
-    # Drop rows with empty text
-    df = df[df["text"].str.strip().astype(bool)]
-    return df[["text", "source", "original_label"]]
-
-
 # ── Registry ───────────────────────────────────────────────────────────────
 
 # Phase A: minimal viable dataset
@@ -124,9 +103,7 @@ MVP_LOADERS = {
 # Phase B: full dataset
 ALL_LOADERS = {
     **MVP_LOADERS,
-    "lakera_mosaic": load_lakera_mosaic,
     "hackaprompt": load_hackaprompt,
     "wildguardmix": load_wildguardmix,
     "awesome_chatgpt": load_awesome_chatgpt_prompts,
-    "verazuo": load_verazuo,
 }

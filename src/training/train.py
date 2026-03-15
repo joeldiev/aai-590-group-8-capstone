@@ -94,7 +94,7 @@ def train_classifier(
     splits = load_tokenized_splits(tokenizer, max_length)
 
     # Compute class weights (inverse frequency)
-    train_labels = splits["train"]["labels"].numpy()
+    train_labels = np.array(splits["train"]["labels"])
     class_counts = Counter(train_labels)
     total = sum(class_counts.values())
     n_classes = len(class_counts)
@@ -181,7 +181,7 @@ def train_anomaly(
     # Load model and data
     from src.models.classifier import load_trained_classifier
     model = load_trained_classifier(str(checkpoint_path))
-    tokenizer = AutoTokenizer.from_pretrained(str(checkpoint_path))
+    tokenizer = AutoTokenizer.from_pretrained(str(checkpoint_path), local_files_only=True)
     splits = load_tokenized_splits(tokenizer)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -189,7 +189,7 @@ def train_anomaly(
     # Extract [CLS] embeddings from train and val sets
     print("Extracting [CLS] embeddings from training set...")
     train_embeddings = extract_cls_embeddings(model, splits["train"], device=device)
-    train_labels = splits["train"]["labels"].numpy()
+    train_labels = np.array(splits["train"]["labels"])
 
     print("Extracting [CLS] embeddings from validation set...")
     val_embeddings = extract_cls_embeddings(model, splits["val"], device=device)
