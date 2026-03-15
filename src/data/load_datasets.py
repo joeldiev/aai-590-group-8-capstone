@@ -104,6 +104,5 @@ MVP_LOADERS = {
 ALL_LOADERS = {
     **MVP_LOADERS,
     "hackaprompt": load_hackaprompt,
-    "wildguardmix": load_wildguardmix,
     "awesome_chatgpt": load_awesome_chatgpt_prompts,
 }
