@@ -25,7 +25,28 @@ build/
 *.egg
 
 # Jupyter
-.ipynb_checkpoints/
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+*.nbconvert.ipynb
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+*.pyo
+build/
+dist/
+eggs/
+.eggs/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+*.egg-info/
+*.egg
+
 
 # Environment
 .env
@@ -45,3 +66,39 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+
+
+# Logs
+*.log
+logs/
+log/
+
+# Data files
+data/
+datasets/
+*.csv
+*.tsv
+*.parquet
+*.feather
+*.hdf5
+*.h5
+*.sqlite
+*.db
+
+# Machine learning artifacts
+models/
+model/
+checkpoints/
+artifacts/
+outputs/
+results/
+runs/
+.cache/
+huggingface/
+hf_cache/
+*.pt
+*.pth
+*.ckpt
+*.pb
+*.pbtxt
+*.tflite
