@@ -6,8 +6,8 @@ data/processed/
 *.csv
 !data/.gitkeep
 
-# Models
-models/
+# Model checkpoints (not source code)
+/models/
 *.pt
 *.pth
 *.bin
