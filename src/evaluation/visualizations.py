@@ -199,22 +199,23 @@ def plot_dataset_composition(
     title: str = "Dataset Composition",
     save_path: str | Path | None = None,
 ) -> plt.Figure:
-    """Stacked bar chart showing samples per source per class."""
-    ct = pd.crosstab(df["source"], df["unified_label"])
+    """Bar chart showing label distribution."""
     import pandas as pd  # noqa: F811
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ct.plot(kind="bar", stacked=True, ax=ax, colormap="viridis")
-    ax.set_xlabel("Source Dataset")
+    label_col = "label_name" if "label_name" in df.columns else "label"
+    counts = df[label_col].value_counts()
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    counts.plot(kind="bar", ax=ax, color=sns.color_palette("viridis", len(counts)))
+    ax.set_xlabel("Class")
     ax.set_ylabel("Number of Samples")
     ax.set_title(title)
-    plt.xticks(rotation=30, ha="right")
-    ax.legend(title="Class")
+    plt.xticks(rotation=0)
     plt.tight_layout()
 
     if save_path:
         fig.savefig(save_path, bbox_inches="tight")
-        print(f"Saved → {save_path}")
+        print(f"Saved -> {save_path}")
 
     return fig
 

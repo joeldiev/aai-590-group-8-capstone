@@ -15,7 +15,7 @@ def build_classifier(
     """Load a pre-trained RoBERTa model with a classification head.
 
     Args:
-        num_labels: Number of output classes (default: 4).
+        num_labels: Number of output classes.
         model_name: HuggingFace model identifier.
 
     Returns:

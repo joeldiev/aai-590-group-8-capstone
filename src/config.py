@@ -14,12 +14,14 @@ MODELS_DIR = PROJECT_ROOT / "models"
 RESULTS_DIR = PROJECT_ROOT / "results"
 FIGURES_DIR = RESULTS_DIR / "figures"
 
-# ── Label map ──────────────────────────────────────────────────────────────
+# ── Dataset source ────────────────────────────────────────────────────────
+# Alex's cleaned CSV from notebooks/data_pipeline/ (binary: 0=benign, 1=malicious)
+DATASET_CSV = PROCESSED_DIR / "dataset_cleaned.csv"
+
+# ── Label map (binary) ────────────────────────────────────────────────────
 LABEL2ID = {
     "Benign": 0,
-    "Injection": 1,
-    "Jailbreak": 2,
-    "Exfiltration": 3,
+    "Malicious": 1,
 }
 ID2LABEL = {v: k for k, v in LABEL2ID.items()}
 NUM_LABELS = len(LABEL2ID)
@@ -38,9 +40,8 @@ WEIGHT_DECAY = 0.01
 EARLY_STOPPING_PATIENCE = 2
 SEED = 42
 
-# ── Anomaly detection ─────────────────────────────────────────────────────
+# ── Anomaly detection (optional) ─────────────────────────────────────────
 PCA_COMPONENTS = 100
-# Calibrated on val set so 95% of in-distribution samples are below threshold
 OOD_RECALL_TARGET = 0.95
 
 # ── Dataset split ratios ──────────────────────────────────────────────────
@@ -48,13 +49,5 @@ TRAIN_RATIO = 0.70
 VAL_RATIO = 0.15
 TEST_RATIO = 0.15
 
-# ── Dataset sources (HuggingFace repo IDs) ────────────────────────────────
-HF_DATASETS = {
-    "deepset": "deepset/prompt-injections",
-    "jailbreakv28k": "JailbreakV-28K/JailBreakV-28k",
-    "lakera_mosaic": "Lakera/mosaic_prompt_injection",
-    "hackaprompt": "hackaprompt/hackaprompt-dataset",
-    "wildguardmix": "allenai/wildguardmix",
-    "awesome_chatgpt": "fka/awesome-chatgpt-prompts",
-    "verazuo": "verazuo/jailbreak_llms",
-}
+# ── Class balance cap ────────────────────────────────────────────────────
+MAX_SAMPLES_PER_CLASS = 50000

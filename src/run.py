@@ -2,7 +2,7 @@
 Unified CLI entry point for the AGL project.
 
 Usage:
-    python -m src.run --stage data [--phase mvp|full]
+    python -m src.run --stage data [--csv PATH]
     python -m src.run --stage train --mode classifier|anomaly|both
     python -m src.run --stage evaluate
     python -m src.run --stage demo --text "..."
@@ -18,8 +18,8 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python -m src.run --stage data                          # Build MVP dataset
-  python -m src.run --stage data --phase full              # Build full 4-class dataset
+  python -m src.run --stage data                          # Build dataset from cleaned CSV
+  python -m src.run --stage data --csv path/to/data.csv   # Build dataset from custom CSV
   python -m src.run --stage train --mode classifier        # Fine-tune RoBERTa
   python -m src.run --stage train --mode anomaly           # Fit Mahalanobis detector
   python -m src.run --stage train --mode both              # Train both sequentially
@@ -34,10 +34,10 @@ Examples:
         help="Pipeline stage to run.",
     )
     parser.add_argument(
-        "--phase",
-        default="mvp",
-        choices=["mvp", "full"],
-        help="Dataset phase (for --stage data).",
+        "--csv",
+        type=str,
+        default=None,
+        help="Path to cleaned CSV (for --stage data). If None, uses default from config.",
     )
     parser.add_argument(
         "--mode",
@@ -83,7 +83,7 @@ Examples:
 
 def _run_data(args):
     from src.data.build_dataset import build_dataset
-    splits = build_dataset(phase=args.phase)
+    splits = build_dataset(csv_path=args.csv)
     print(f"\nDataset build complete!")
     for name, df in splits.items():
         print(f"  {name}: {len(df)} samples")

@@ -1,7 +1,7 @@
 """
 Evaluation metrics for AGL.
 
-Per-class P/R/F1, macro-F1, confusion matrix, latency benchmarking.
+Per-class P/R/F1, macro-F1, confusion matrix, ROC-AUC, latency benchmarking.
 """
 
 import json
@@ -15,9 +15,10 @@ from sklearn.metrics import (
     confusion_matrix,
     f1_score,
     roc_auc_score,
+    average_precision_score,
 )
 
-from src.config import LABEL_NAMES, RESULTS_DIR
+from src.config import LABEL_NAMES, NUM_LABELS, RESULTS_DIR
 
 
 def evaluate_predictions(
@@ -32,12 +33,12 @@ def evaluate_predictions(
         y_true: Ground truth labels (int).
         y_pred: Predicted labels (int).
         label_names: Class names for display.
-        y_prob: Predicted probabilities (N, C) for ROC-AUC (optional).
+        y_prob: For binary: (N,) array of P(malicious).
+                For multiclass: (N, C) array of probabilities.
 
     Returns:
         Dict with report, confusion matrix, and AUC scores.
     """
-    # Determine which labels are present
     present_labels = sorted(set(y_true) | set(y_pred))
     present_names = [label_names[i] for i in present_labels if i < len(label_names)]
 
@@ -59,19 +60,25 @@ def evaluate_predictions(
         "label_names": present_names,
     }
 
-    # ROC-AUC (one-vs-rest) if probabilities provided
+    # ROC-AUC and PR-AUC
     if y_prob is not None:
         try:
-            auc = roc_auc_score(
-                y_true, y_prob,
-                multi_class="ovr",
-                average="macro",
-                labels=present_labels,
-            )
-            result["macro_auc"] = auc
+            if NUM_LABELS == 2:
+                # Binary: y_prob should be P(malicious) — shape (N,)
+                probs = y_prob[:, 1] if y_prob.ndim == 2 else y_prob
+                result["roc_auc"] = roc_auc_score(y_true, probs)
+                result["pr_auc"] = average_precision_score(y_true, probs)
+            else:
+                # Multiclass: one-vs-rest
+                result["roc_auc"] = roc_auc_score(
+                    y_true, y_prob,
+                    multi_class="ovr",
+                    average="macro",
+                    labels=present_labels,
+                )
         except ValueError as e:
             print(f"[metrics] AUC computation failed: {e}")
-            result["macro_auc"] = None
+            result["roc_auc"] = None
 
     return result
 

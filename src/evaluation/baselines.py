@@ -1,13 +1,11 @@
 """
 Baseline models for comparison against the AGL pipeline.
 
-1. Keyword blocklist (regex)
+1. Keyword blocklist (regex) — binary: benign vs malicious
 2. TF-IDF + LinearSVM
-3. MSP (Maximum Softmax Probability) anomaly baseline
 """
 
 import re
-import time
 
 import numpy as np
 import pandas as pd
@@ -15,13 +13,14 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline as SkPipeline
 
-from src.config import LABEL2ID, LABEL_NAMES
+from src.config import LABEL2ID
 
 
 # ── 1. Keyword Blocklist Baseline ──────────────────────────────────────────
 
-# Patterns per class (case-insensitive)
-_INJECTION_PATTERNS = [
+# Combined malicious patterns (injection, jailbreak, exfiltration)
+_MALICIOUS_PATTERNS = [
+    # Injection patterns
     r"ignore\s+(all\s+)?previous\s+instructions",
     r"disregard\s+(all\s+)?(prior|previous|above)",
     r"forget\s+(all\s+)?(prior|previous|your)\s+instructions",
@@ -29,9 +28,7 @@ _INJECTION_PATTERNS = [
     r"you\s+are\s+now\s+(an?\s+)?unrestricted",
     r"override\s+(safety|content|system)",
     r"do\s+not\s+follow\s+(your|the)\s+(rules|guidelines)",
-]
-
-_JAILBREAK_PATTERNS = [
+    # Jailbreak patterns
     r"do\s+anything\s+now",
     r"\bDAN\b",
     r"act\s+as\s+(an?\s+)?(evil|unrestricted|unfiltered)",
@@ -41,9 +38,7 @@ _JAILBREAK_PATTERNS = [
     r"bypass\s+(safety|content|filter)",
     r"opposite\s+mode",
     r"no\s+ethical\s+(guidelines|restrictions)",
-]
-
-_EXFILTRATION_PATTERNS = [
+    # Exfiltration patterns
     r"(show|reveal|display|print|output|repeat)\s+(your\s+)?(system\s+)?prompt",
     r"system\s+(message|instructions|prompt)",
     r"(what|show)\s+(are\s+)?(your|the)\s+(initial\s+)?instructions",
@@ -55,13 +50,13 @@ _EXFILTRATION_PATTERNS = [
 
 
 def keyword_blocklist_baseline(test_df: pd.DataFrame) -> np.ndarray:
-    """Classify prompts using regex keyword matching.
+    """Classify prompts using regex keyword matching (binary).
 
     Args:
         test_df: DataFrame with 'text' column.
 
     Returns:
-        Array of predicted label IDs.
+        Array of predicted label IDs (0=benign, 1=malicious).
     """
     predictions = []
     for text in test_df["text"]:
@@ -72,16 +67,10 @@ def keyword_blocklist_baseline(test_df: pd.DataFrame) -> np.ndarray:
 
 
 def _classify_by_keywords(text: str) -> int:
-    """Classify a single text using keyword patterns. Priority: Exfil > Jailbreak > Injection > Benign."""
-    for pattern in _EXFILTRATION_PATTERNS:
+    """Classify a single text: any malicious pattern match → Malicious, else Benign."""
+    for pattern in _MALICIOUS_PATTERNS:
         if re.search(pattern, text):
-            return LABEL2ID["Exfiltration"]
-    for pattern in _JAILBREAK_PATTERNS:
-        if re.search(pattern, text):
-            return LABEL2ID["Jailbreak"]
-    for pattern in _INJECTION_PATTERNS:
-        if re.search(pattern, text):
-            return LABEL2ID["Injection"]
+            return LABEL2ID["Malicious"]
     return LABEL2ID["Benign"]
 
 
@@ -116,47 +105,3 @@ def tfidf_svm_baseline(
     predictions = pipeline.predict(test_df["text"].astype(str))
 
     return predictions, pipeline
-
-
-# ── 3. MSP Anomaly Baseline ───────────────────────────────────────────────
-
-def msp_baseline(
-    model,
-    dataset,
-    device: str = "cpu",
-    batch_size: int = 32,
-) -> np.ndarray:
-    """Maximum Softmax Probability anomaly scores.
-
-    Uses 1 - max(softmax(logits)) as anomaly score.
-    Higher score = more anomalous.
-
-    Args:
-        model: Fine-tuned classifier.
-        dataset: HF Dataset with input_ids and attention_mask.
-        device: Device for inference.
-        batch_size: Batch size.
-
-    Returns:
-        (N,) array of anomaly scores.
-    """
-    import torch
-    from torch.utils.data import DataLoader
-
-    model = model.to(device)
-    model.eval()
-
-    dataloader = DataLoader(dataset, batch_size=batch_size)
-    all_scores = []
-
-    with torch.no_grad():
-        for batch in dataloader:
-            input_ids = batch["input_ids"].to(device)
-            attention_mask = batch["attention_mask"].to(device)
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-            probs = torch.softmax(outputs.logits, dim=-1)
-            max_probs = probs.max(dim=-1).values
-            anomaly_scores = 1.0 - max_probs
-            all_scores.append(anomaly_scores.cpu().numpy())
-
-    return np.concatenate(all_scores)

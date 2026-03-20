@@ -1,15 +1,15 @@
 """
-Build the unified AGL dataset: merge sources, deduplicate, balance, split.
+Build the AGL dataset: load CSV, deduplicate, balance, split.
 
 Output: data/processed/{train,val,test}.parquet
 
 Usage:
     from src.data.build_dataset import build_dataset
-    build_dataset(phase="mvp")   # Phase A: deepset + jailbreakv28k only
-    build_dataset(phase="full")  # Phase B: all sources + synthetic exfiltration
+    build_dataset()
 """
 
 import hashlib
+import json
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -17,88 +17,57 @@ from sklearn.model_selection import train_test_split
 from src.config import (
     PROCESSED_DIR,
     TRAIN_RATIO,
-    VAL_RATIO,
     SEED,
     LABEL_NAMES,
     LABEL2ID,
+    ID2LABEL,
+    MAX_SAMPLES_PER_CLASS,
 )
-from src.data.load_datasets import MVP_LOADERS, ALL_LOADERS
-from src.data.label_mapping import unify_labels
-from src.data.synthetic_exfiltration import load_synthetic_exfiltration
+from src.data.load_datasets import load_dataset_csv
 
 
-def build_dataset(phase: str = "mvp") -> dict[str, pd.DataFrame]:
+def build_dataset(csv_path: str | None = None) -> dict[str, pd.DataFrame]:
     """Build the full AGL dataset pipeline.
 
     Args:
-        phase: "mvp" (3-class, Phase A) or "full" (4-class, Phase B).
+        csv_path: Path to cleaned CSV. If None, uses default from config.
 
     Returns:
         Dict with keys "train", "val", "test" — each a pd.DataFrame.
     """
     print(f"\n{'='*60}")
-    print(f"Building AGL dataset — phase={phase}")
+    print(f"Building AGL dataset (binary classification)")
     print(f"{'='*60}\n")
 
-    # 1. Load raw data from all sources
-    loaders = MVP_LOADERS if phase == "mvp" else ALL_LOADERS
-    frames = []
-    for name, loader_fn in loaders.items():
-        print(f"Loading {name}...")
-        try:
-            df = loader_fn()
-            print(f"  → {len(df)} samples")
-            frames.append(df)
-        except Exception as e:
-            print(f"  ✗ Failed: {e}")
+    # 1. Load cleaned CSV
+    df = load_dataset_csv(csv_path)
 
-    # Add synthetic exfiltration for full phase
-    if phase == "full":
-        print("Loading synthetic exfiltration...")
-        try:
-            synth = load_synthetic_exfiltration()
-            frames.append(synth)
-        except Exception as e:
-            print(f"  ✗ Failed: {e}")
+    # 2. Add label name column for reporting
+    df["label_name"] = df["label"].map(ID2LABEL)
 
-    # 2. Merge
-    if not frames:
-        raise RuntimeError(
-            "No datasets loaded successfully. Check network access to HuggingFace Hub, "
-            "or run on Colab/Kaggle where HF is accessible."
-        )
-    raw = pd.concat(frames, ignore_index=True)
-    print(f"\nMerged: {len(raw)} total samples")
-    print(f"Sources: {raw['source'].value_counts().to_dict()}")
-
-    # 3. Unify labels
-    df = unify_labels(raw)
-    print(f"\nAfter label mapping: {len(df)} samples")
-    print(f"Label distribution:\n{df['unified_label'].value_counts().to_string()}")
-
-    # 4. Deduplicate on text content
+    # 3. Deduplicate on text content
     df = _deduplicate(df)
     print(f"\nAfter dedup: {len(df)} samples")
 
-    # 5. Clean text
+    # 4. Clean text
     df = _clean_text(df)
 
-    # 6. Balance classes (downsample majority classes)
-    df = _balance_classes(df, phase=phase)
+    # 5. Balance classes (downsample majority class)
+    df = _balance_classes(df)
     print(f"\nAfter balancing: {len(df)} samples")
-    print(f"Label distribution:\n{df['unified_label'].value_counts().to_string()}")
+    print(f"Label distribution:\n{df['label_name'].value_counts().to_string()}")
 
-    # 7. Split: 70/15/15 stratified
+    # 6. Split: 70/15/15 stratified
     splits = _stratified_split(df)
 
-    # 8. Save to parquet
+    # 7. Save to parquet
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
     for split_name, split_df in splits.items():
         path = PROCESSED_DIR / f"{split_name}.parquet"
         split_df.to_parquet(path, index=False)
-        print(f"Saved {split_name}: {len(split_df)} samples → {path}")
+        print(f"Saved {split_name}: {len(split_df)} samples -> {path}")
 
-    # 9. Save metadata
+    # 8. Save metadata
     _save_metadata(splits)
 
     return splits
@@ -125,21 +94,14 @@ def _clean_text(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def _balance_classes(
-    df: pd.DataFrame,
-    phase: str = "mvp",
-) -> pd.DataFrame:
-    """Downsample majority classes to target sizes.
-
-    MVP (3-class): cap each class at 7,000
-    Full (4-class): Benign/Injection/Jailbreak at 7,000; Exfiltration uncapped
-    """
-    cap = 7000
+def _balance_classes(df: pd.DataFrame) -> pd.DataFrame:
+    """Downsample majority classes to cap."""
+    cap = MAX_SAMPLES_PER_CLASS
     balanced_frames = []
 
-    for label_name in df["unified_label"].unique():
-        subset = df[df["unified_label"] == label_name]
-        if len(subset) > cap and label_name != "Exfiltration":
+    for label_val in df["label"].unique():
+        subset = df[df["label"] == label_val]
+        if len(subset) > cap:
             subset = subset.sample(n=cap, random_state=SEED)
         balanced_frames.append(subset)
 
@@ -148,7 +110,6 @@ def _balance_classes(
 
 def _stratified_split(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     """70/15/15 stratified split."""
-    # First split: train vs (val+test)
     val_test_ratio = 1 - TRAIN_RATIO
     train_df, valtest_df = train_test_split(
         df,
@@ -157,7 +118,6 @@ def _stratified_split(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
         random_state=SEED,
     )
 
-    # Second split: val vs test (50/50 of remaining)
     val_df, test_df = train_test_split(
         valtest_df,
         test_size=0.5,
@@ -170,17 +130,14 @@ def _stratified_split(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
 
 def _save_metadata(splits: dict[str, pd.DataFrame]) -> None:
     """Save dataset statistics as JSON."""
-    import json
-
     meta = {}
     for split_name, df in splits.items():
         meta[split_name] = {
             "total": len(df),
-            "label_counts": df["unified_label"].value_counts().to_dict(),
-            "sources": df["source"].value_counts().to_dict(),
+            "label_counts": df["label_name"].value_counts().to_dict(),
         }
 
     path = PROCESSED_DIR / "dataset_metadata.json"
     with open(path, "w") as f:
         json.dump(meta, f, indent=2)
-    print(f"Saved metadata → {path}")
+    print(f"Saved metadata -> {path}")
