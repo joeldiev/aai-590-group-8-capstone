@@ -29,12 +29,12 @@ LABEL_NAMES = list(LABEL2ID.keys())
 
 # ── Model / training hyperparameters ───────────────────────────────────────
 MODEL_NAME = "roberta-base"
-MAX_SEQ_LENGTH = 256
-TRAIN_BATCH_SIZE = 16
-EVAL_BATCH_SIZE = 32
-GRADIENT_ACCUMULATION_STEPS = 2  # effective batch size = 32
+MAX_SEQ_LENGTH = 128
+TRAIN_BATCH_SIZE = 32
+EVAL_BATCH_SIZE = 64
+GRADIENT_ACCUMULATION_STEPS = 1  # effective batch size = 32
 LEARNING_RATE = 2e-5
-NUM_EPOCHS = 5
+NUM_EPOCHS = 3
 WARMUP_RATIO = 0.1
 WEIGHT_DECAY = 0.01
 EARLY_STOPPING_PATIENCE = 2
@@ -50,4 +50,4 @@ VAL_RATIO = 0.15
 TEST_RATIO = 0.15
 
 # ── Class balance cap ────────────────────────────────────────────────────
-MAX_SAMPLES_PER_CLASS = 50000
+MAX_SAMPLES_PER_CLASS = 15000
