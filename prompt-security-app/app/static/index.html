@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prompt Security UI</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <main class="container">
+    <section class="panel">
+      <h1>Prompt Risk Checker</h1>
+      <p class="subtitle">Submit a prompt to the anomaly endpoint and review color-coded results.</p>
+      <form id="predict-form">
+        <label for="prompt-input">Prompt</label>
+        <textarea id="prompt-input" rows="6" placeholder="Type a prompt..."></textarea>
+        <div class="actions">
+          <button type="submit" id="run-btn">Run Prediction</button>
+          <button type="button" id="clear-btn" class="ghost">Clear</button>
+        </div>
+      </form>
+      <p id="error" class="error hidden"></p>
+    </section>
+
+    <section class="panel">
+      <h2>Latest Result</h2>
+      <div id="result" class="result hidden">
+        <div class="row">
+          <span class="k">Decision</span>
+          <span id="decision-badge" class="badge"></span>
+        </div>
+        <div class="row">
+          <span class="k">Prompt</span>
+          <span id="prompt-display"></span>
+        </div>
+        <div class="row">
+          <span class="k">Score</span>
+          <span id="score"></span>
+        </div>
+        <div class="row">
+          <span class="k">Threshold</span>
+          <span id="threshold"></span>
+        </div>
+        <div class="row">
+          <span class="k">Feature Count</span>
+          <span id="feature-count"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="history-head">
+        <h2>Prompt History</h2>
+        <button id="clear-history" class="ghost">Clear History</button>
+      </div>
+      <ul id="history-list" class="history-list"></ul>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
