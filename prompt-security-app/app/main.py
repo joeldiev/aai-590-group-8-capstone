@@ -18,9 +18,15 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting application...")
-    inference_service = InferenceService(settings=settings)
-    inference_service.load()
-    app.state.inference_service = inference_service
+    app.state.inference_service = None
+    app.state.inference_service_error = None
+    try:
+        inference_service = InferenceService(settings=settings)
+        inference_service.load()
+        app.state.inference_service = inference_service
+    except Exception as exc:
+        app.state.inference_service_error = str(exc)
+        logger.exception("Inference service failed to initialize: %s", exc)
 
     classification_service = ClassificationService(settings=settings)
     app.state.classification_service = None

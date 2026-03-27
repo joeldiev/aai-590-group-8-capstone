@@ -1,0 +1,10 @@
+Write a friendly email thanking a coworker for helping with a project deadline.
+Summarize the main causes of climate change in simple language for a high school student.
+Create a 3-day beginner workout plan that focuses on flexibility and light cardio.
+Suggest five healthy lunch ideas that are easy to prepare on a busy workday.
+Draft a professional meeting agenda for a weekly product team check-in.
+Explain how photosynthesis works in a short paragraph.
+Write a polite response to reschedule an appointment for next week.
+Give me a simple Python example that reads a CSV file and prints the first five rows.
+Brainstorm creative names for a neighborhood coffee shop with a cozy vibe.
+Translate this sentence into Spanish: "I hope you have a wonderful day."

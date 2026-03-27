@@ -10,12 +10,12 @@
   <main class="container">
     <section class="panel">
       <h1>Prompt Risk Checker</h1>
-      <p class="subtitle">Submit a prompt to the anomaly endpoint and review color-coded results.</p>
+      <p class="subtitle">Submit a prompt to run both anomaly detection and classification, then review the combined risk signal.</p>
       <form id="predict-form">
         <label for="prompt-input">Prompt</label>
         <textarea id="prompt-input" rows="6" placeholder="Type a prompt..."></textarea>
         <div class="actions">
-          <button type="submit" id="run-btn">Run Prediction</button>
+          <button type="submit" id="run-btn">Run Analysis</button>
           <button type="button" id="clear-btn" class="ghost">Clear</button>
         </div>
       </form>
@@ -26,24 +26,52 @@
       <h2>Latest Result</h2>
       <div id="result" class="result hidden">
         <div class="row">
-          <span class="k">Decision</span>
-          <span id="decision-badge" class="badge"></span>
-        </div>
-        <div class="row">
           <span class="k">Prompt</span>
           <span id="prompt-display"></span>
         </div>
-        <div class="row">
-          <span class="k">Score</span>
-          <span id="score"></span>
-        </div>
-        <div class="row">
-          <span class="k">Threshold</span>
-          <span id="threshold"></span>
-        </div>
-        <div class="row">
-          <span class="k">Feature Count</span>
-          <span id="feature-count"></span>
+        <div class="results-grid">
+          <section class="result-card">
+            <h3>Anomaly Detection</h3>
+            <div class="row">
+              <span class="k">Decision</span>
+              <span id="decision-badge" class="badge"></span>
+            </div>
+            <div class="row">
+              <span class="k">Score</span>
+              <span id="score"></span>
+            </div>
+            <div class="row">
+              <span class="k">Threshold</span>
+              <span id="threshold"></span>
+            </div>
+            <div class="row">
+              <span class="k">Feature Count</span>
+              <span id="feature-count"></span>
+            </div>
+          </section>
+          <section class="result-card">
+            <h3>Classification</h3>
+            <div class="row">
+              <span class="k">Label</span>
+              <span id="classification-badge" class="badge neutral"></span>
+            </div>
+            <div class="row">
+              <span class="k">Confidence</span>
+              <span id="classification-confidence"></span>
+            </div>
+            <div class="row">
+              <span class="k">Min Confidence</span>
+              <span id="classification-threshold"></span>
+            </div>
+            <div class="row">
+              <span class="k">Decision Rule</span>
+              <span id="classification-rule"></span>
+            </div>
+            <div class="row">
+              <span class="k">Uncertain</span>
+              <span id="classification-uncertain"></span>
+            </div>
+          </section>
         </div>
       </div>
     </section>

@@ -1,6 +1,11 @@
+from __future__ import annotations
+
 import os
 from dataclasses import dataclass
 from pathlib import Path
+
+
+DEFAULT_PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _load_env_file(path: Path) -> None:
@@ -26,6 +31,13 @@ def _load_env_file(path: Path) -> None:
             value = value[1:-1]
 
         os.environ.setdefault(key, value)
+
+
+def _resolve_env_path(raw_value: str, *, base_dir: Path) -> Path:
+    path = Path(raw_value)
+    if path.is_absolute():
+        return path.resolve()
+    return (base_dir / path).resolve()
 
 
 def _to_bool(value: str, default: bool = False) -> bool:
@@ -73,16 +85,29 @@ class Settings:
 
     @classmethod
     def from_env(cls) -> "Settings":
-        _load_env_file(Path(os.getenv("ENV_FILE", ".env")).resolve())
+        env_file = Path(os.getenv("ENV_FILE", ".env")).resolve()
+        _load_env_file(env_file)
+        env_base_dir = env_file.parent if env_file.exists() else Path.cwd()
 
-        project_root = Path(os.getenv("PROJECT_ROOT", ".")).resolve()
+        project_root = _resolve_env_path(
+            os.getenv("PROJECT_ROOT", str(DEFAULT_PROJECT_ROOT)),
+            base_dir=env_base_dir,
+        )
         model_dir = (project_root / os.getenv("MODEL_DIR", "models")).resolve()
 
         feature_artifact_dir = (
-            project_root / os.getenv("FEATURE_ARTIFACT_DIR", "models/feature_engineering")
+            project_root
+            / os.getenv(
+                "FEATURE_ARTIFACT_DIR",
+                "models/feature_engineering/feature_pipeline",
+            )
         ).resolve()
         anomaly_model_dir = (
-            project_root / os.getenv("ANOMALY_MODEL_DIR", "models/anomaly_detector")
+            project_root
+            / os.getenv(
+                "ANOMALY_MODEL_DIR",
+                "models/anomaly_detection/denoising_autoencoder/best",
+            )
         ).resolve()
         classifier_model_dir = (
             project_root / os.getenv("CLASSIFIER_MODEL_DIR", "models/classifier/best")
@@ -103,70 +128,70 @@ class Settings:
                 project_root
                 / os.getenv(
                     "FEATURE_PIPELINE_BUNDLE_PATH",
-                    "models/feature_engineering/feature_pipeline.joblib",
+                    "models/feature_engineering/feature_pipeline/feature_pipeline.joblib",
                 )
             ).resolve(),
             feature_fill_values_path=(
                 project_root
                 / os.getenv(
                     "FEATURE_FILL_VALUES_PATH",
-                    "models/feature_engineering/fill_values.joblib",
+                    "models/feature_engineering/feature_pipeline/fill_values.joblib",
                 )
             ).resolve(),
             feature_scaler_path=(
                 project_root
                 / os.getenv(
                     "FEATURE_SCALER_PATH",
-                    "models/feature_engineering/scaler.joblib",
+                    "models/anomaly_detection/denoising_autoencoder/best/scaler.joblib",
                 )
             ).resolve(),
             feature_selected_columns_path=(
                 project_root
                 / os.getenv(
                     "FEATURE_SELECTED_COLUMNS_PATH",
-                    "models/feature_engineering/selected_features.joblib",
+                    "models/anomaly_detection/denoising_autoencoder/best/feature_columns.joblib",
                 )
             ).resolve(),
             feature_variance_selector_path=(
                 project_root
                 / os.getenv(
                     "FEATURE_VARIANCE_SELECTOR_PATH",
-                    "models/feature_engineering/variance_selector.joblib",
+                    "models/feature_engineering/feature_pipeline/variance_selector.joblib",
                 )
             ).resolve(),
             feature_correlation_drop_columns_path=(
                 project_root
                 / os.getenv(
                     "FEATURE_CORRELATION_DROP_COLUMNS_PATH",
-                    "models/feature_engineering/correlation_drop_columns.joblib",
+                    "models/feature_engineering/feature_pipeline/correlation_drop_columns.joblib",
                 )
             ).resolve(),
             feature_metadata_path=(
                 project_root
                 / os.getenv(
                     "FEATURE_METADATA_PATH",
-                    "models/feature_engineering/feature_metadata.json",
+                    "models/feature_engineering/feature_pipeline/feature_pipeline_metadata.json",
                 )
             ).resolve(),
             dae_state_dict_path=(
                 project_root
                 / os.getenv(
                     "DAE_STATE_DICT_PATH",
-                    "models/anomaly_detector/dae_state_dict.pt",
+                    "models/anomaly_detection/denoising_autoencoder/best/autoencoder_model.pt",
                 )
             ).resolve(),
             dae_metadata_path=(
                 project_root
                 / os.getenv(
                     "DAE_METADATA_PATH",
-                    "models/anomaly_detector/dae_metadata.json",
+                    "models/anomaly_detection/denoising_autoencoder/best/metadata.json",
                 )
             ).resolve(),
             threshold_path=(
                 project_root
                 / os.getenv(
                     "THRESHOLD_PATH",
-                    "models/anomaly_detector/threshold.json",
+                    "models/anomaly_detection/denoising_autoencoder/best/thresholds.json",
                 )
             ).resolve(),
             anomaly_threshold_override=(

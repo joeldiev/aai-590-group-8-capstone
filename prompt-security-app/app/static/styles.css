@@ -100,12 +100,35 @@ button.ghost {
   gap: 8px;
 }
 
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.result-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.result-card h3 {
+  margin: 0 0 12px;
+  font-size: 15px;
+}
+
 .row {
   display: flex;
   justify-content: space-between;
   gap: 12px;
   border-bottom: 1px dashed var(--line);
   padding-bottom: 6px;
+}
+
+.result-card .row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .k {
@@ -127,6 +150,16 @@ button.ghost {
 .badge.ok {
   color: #fff;
   background: var(--ok);
+}
+
+.badge.warn {
+  color: #fff;
+  background: var(--warn);
+}
+
+.badge.neutral {
+  color: #234;
+  background: #e8eefb;
 }
 
 .prompt-bad {
@@ -176,6 +209,10 @@ button.ghost {
 }
 
 @media (max-width: 640px) {
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+
   .row {
     flex-direction: column;
     align-items: flex-start;

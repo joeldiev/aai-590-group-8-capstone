@@ -20,12 +20,14 @@ Place artifacts in this project under `models/` with this structure:
 
 ```text
 models/
-├── anomaly_detector/
-│   ├── autoencoder_model.pt
-│   ├── metadata.json
-│   ├── thresholds.json
-│   ├── scaler.joblib
-│   └── feature_columns.joblib
+├── anomaly_detection/
+│   └── denoising_autoencoder/
+│       └── best/
+│           ├── autoencoder_model.pt
+│           ├── metadata.json
+│           ├── thresholds.json
+│           ├── scaler.joblib
+│           └── feature_columns.joblib
 ├── classifier/
 │   └── best/
 │       ├── config.json
@@ -38,14 +40,20 @@ models/
 │       ├── inference_config.json
 │       └── classification_threshold.json
 └── feature_engineering/
-    ├── pca.joblib
-    ├── phrase_rules.json
-    └── feature_pipeline_metadata.json
+    └── feature_pipeline/
+        ├── feature_pipeline.joblib
+        ├── fill_values.joblib
+        ├── variance_selector.joblib
+        ├── correlation_drop_columns.joblib
+        ├── pca.joblib
+        ├── phrase_rules.json
+        └── feature_pipeline_metadata.json
 ```
 
 Notes:
-- `feature_engineering/pca.joblib` and `phrase_rules.json` are used by anomaly feature generation.
-- `anomaly_detector/scaler.joblib` and `feature_columns.joblib` are required for anomaly model input alignment.
+- `feature_engineering/feature_pipeline/pca.joblib` and `phrase_rules.json` are used by anomaly feature generation.
+- `anomaly_detection/denoising_autoencoder/best/scaler.joblib` and `feature_columns.joblib` are required for anomaly model input alignment.
+- If the feature pipeline folder only contains `pca.joblib`, `phrase_rules.json`, and `feature_pipeline_metadata.json`, that is expected; the anomaly scaler and feature columns still come from the anomaly artifact export.
 
 ## Configuration
 
