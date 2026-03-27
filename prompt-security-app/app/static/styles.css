@@ -1,12 +1,19 @@
 :root {
-  --bg: #f4f6fb;
-  --panel: #ffffff;
-  --text: #152033;
-  --muted: #6b778c;
-  --ok: #1f9d55;
-  --bad: #c62828;
-  --warn: #ff8f00;
-  --line: #dde4f0;
+  --bg: #0b0b0c;
+  --bg-glow: #1a1a1d;
+  --panel: rgba(18, 18, 20, 0.9);
+  --panel-strong: #161619;
+  --text: #f2f2f3;
+  --muted: #a1a1aa;
+  --ok: #35c47c;
+  --bad: #ff6b6b;
+  --warn: #ffb347;
+  --line: rgba(255, 255, 255, 0.1);
+  --line-strong: rgba(255, 255, 255, 0.2);
+  --accent: #f5f5f5;
+  --accent-strong: #d4d4d8;
+  --input-bg: rgba(9, 9, 11, 0.92);
+  --history-bg: rgba(14, 14, 16, 0.94);
 }
 
 * {
@@ -17,7 +24,11 @@ body {
   margin: 0;
   font-family: "Avenir Next", "Segoe UI", sans-serif;
   color: var(--text);
-  background: radial-gradient(circle at 0% 0%, #e8f1ff 0%, var(--bg) 55%);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.05) 0%, transparent 28%),
+    radial-gradient(circle at 100% 10%, rgba(255, 255, 255, 0.03) 0%, transparent 20%),
+    linear-gradient(160deg, var(--bg-glow) 0%, var(--bg) 38%, #050505 100%);
+  min-height: 100vh;
 }
 
 .container {
@@ -32,7 +43,8 @@ body {
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 16px;
-  box-shadow: 0 6px 20px rgba(19, 38, 68, 0.05);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(14px);
 }
 
 h1, h2 {
@@ -58,11 +70,17 @@ textarea {
   padding: 10px;
   font-size: 15px;
   outline: none;
+  color: var(--text);
+  background: var(--input-bg);
 }
 
 textarea:focus {
-  border-color: #7aa7ff;
-  box-shadow: 0 0 0 3px rgba(122, 167, 255, 0.2);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+}
+
+textarea::placeholder {
+  color: #71717a;
 }
 
 .actions {
@@ -77,13 +95,15 @@ button {
   padding: 10px 14px;
   font-weight: 600;
   cursor: pointer;
-  background: #1f4fff;
-  color: #fff;
+  background: linear-gradient(135deg, #fafafa 0%, #d4d4d8 100%);
+  color: #111113;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.22);
 }
 
 button.ghost {
-  background: #eef3ff;
-  color: #234;
+  background: rgba(28, 28, 31, 0.9);
+  color: var(--text);
+  border: 1px solid var(--line);
 }
 
 .error {
@@ -110,7 +130,7 @@ button.ghost {
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 14px;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  background: linear-gradient(180deg, rgba(28, 28, 31, 0.96) 0%, rgba(15, 15, 17, 0.96) 100%);
 }
 
 .result-card h3 {
@@ -158,8 +178,9 @@ button.ghost {
 }
 
 .badge.neutral {
-  color: #234;
-  background: #e8eefb;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .prompt-bad {
@@ -192,7 +213,7 @@ button.ghost {
   border-left-width: 6px;
   border-radius: 10px;
   padding: 10px;
-  background: #fbfdff;
+  background: var(--history-bg);
 }
 
 .history-item.bad {
