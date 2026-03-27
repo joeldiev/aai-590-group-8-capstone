@@ -43,6 +43,33 @@
             <ul id="decision-reasons-list" class="reason-list"></ul>
           </div>
         </section>
+        <section id="severity-panel" class="severity-panel hidden">
+          <h3>Severity Assessment</h3>
+          <div class="severity-header">
+            <span id="severity-tier-badge" class="severity-tier-badge"></span>
+            <span id="severity-threat-type" class="severity-threat-type"></span>
+          </div>
+          <div class="severity-score-bar">
+            <div id="severity-score-fill" class="severity-score-fill"></div>
+          </div>
+          <div class="severity-details">
+            <div class="row">
+              <span class="k">Severity Score</span>
+              <span id="severity-score"></span>
+            </div>
+            <div class="row">
+              <span class="k">Threat Confidence</span>
+              <span id="severity-threat-confidence"></span>
+            </div>
+            <div class="row">
+              <span class="k">Latency</span>
+              <span id="severity-latency"></span>
+            </div>
+          </div>
+          <div id="severity-breakdown" class="severity-breakdown"></div>
+          <div id="severity-intel" class="severity-intel"></div>
+        </section>
+
         <div class="results-grid">
           <section class="result-card">
             <h3>Anomaly Detection</h3>

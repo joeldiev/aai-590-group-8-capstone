@@ -112,9 +112,33 @@ def prompt(request: Request, payload: PredictionRequest) -> DecisionResponse:
     classification = ClassificationResponse(**classification_service.predict(payload.prompt))
     decision_result = decide_prompt_risk(anomaly=anomaly, classification=classification)
 
+    # Severity evaluation — only when both classifiers flag malicious
+    severity_response = None
+    if decision_result.is_malicious:
+        severity_service = getattr(request.app.state, "severity_service", None)
+        if severity_service and severity_service.is_loaded:
+            from app.schemas.severity import SeverityResponse
+
+            severity_result = severity_service.evaluate(
+                text=payload.prompt,
+                anomaly=anomaly,
+                classification=classification,
+            )
+            severity_response = SeverityResponse(
+                severity_tier=severity_result.severity_tier,
+                severity_score=severity_result.severity_score,
+                threat_type=severity_result.threat_type,
+                threat_confidence=severity_result.threat_confidence,
+                threat_class_probabilities=severity_result.threat_class_probabilities,
+                threat_intel=severity_result.threat_intel,
+                scoring_breakdown=severity_result.scoring_breakdown,
+                latency_ms=severity_result.latency_ms,
+            )
+
     return DecisionResponse(
         anomaly=anomaly,
         classification=classification,
+        severity=severity_response,
         final_label=decision_result.final_label,
         is_malicious=decision_result.is_malicious,
         reasons=decision_result.reasons,
