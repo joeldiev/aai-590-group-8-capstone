@@ -1,11 +1,45 @@
 from fastapi import APIRouter, HTTPException, Request, status
 
 from app.core.config import settings
+from app.ml.decision import decide_prompt_risk
 from app.schemas.classification import ClassificationRequest, ClassificationResponse
+from app.schemas.decision import DecisionRequest, DecisionResponse
 from app.schemas.health import HealthResponse
 from app.schemas.prediction import PredictionRequest, PredictionResponse
 
 router = APIRouter(tags=["prompt-security"])
+
+
+def _get_inference_service(request: Request):
+    service = getattr(request.app.state, "inference_service", None)
+    service_error = getattr(request.app.state, "inference_service_error", None)
+
+    if service is None or not service.is_loaded:
+        detail = "Inference service is not ready."
+        if service_error:
+            detail = f"{detail} {service_error}"
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=detail,
+        )
+
+    return service
+
+
+def _get_classification_service(request: Request):
+    service = getattr(request.app.state, "classification_service", None)
+    service_error = getattr(request.app.state, "classification_service_error", None)
+
+    if service is None or not service.is_loaded:
+        detail = "Classification service is not ready."
+        if service_error:
+            detail = f"{detail} {service_error}"
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=detail,
+        )
+
+    return service
 
 
 @router.get("/health", response_model=HealthResponse)
@@ -36,35 +70,52 @@ def health(request: Request) -> HealthResponse:
 
 @router.post("/predict", response_model=PredictionResponse)
 def predict(request: Request, payload: PredictionRequest) -> PredictionResponse:
-    service = getattr(request.app.state, "inference_service", None)
-    service_error = getattr(request.app.state, "inference_service_error", None)
-
-    if service is None or not service.is_loaded:
-        detail = "Inference service is not ready."
-        if service_error:
-            detail = f"{detail} {service_error}"
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=detail,
-        )
-
+    service = _get_inference_service(request)
     result = service.predict(payload.prompt)
     return PredictionResponse(**result)
 
 
 @router.post("/classify", response_model=ClassificationResponse)
 def classify(request: Request, payload: ClassificationRequest) -> ClassificationResponse:
-    service = getattr(request.app.state, "classification_service", None)
-    service_error = getattr(request.app.state, "classification_service_error", None)
-
-    if service is None or not service.is_loaded:
-        detail = "Classification service is not ready."
-        if service_error:
-            detail = f"{detail} {service_error}"
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=detail,
-        )
-
+    service = _get_classification_service(request)
     result = service.predict(payload.prompt)
     return ClassificationResponse(**result)
+
+
+@router.post("/decision", response_model=DecisionResponse)
+def decision(payload: DecisionRequest) -> DecisionResponse:
+    anomaly = payload.anomaly
+    classification = payload.classification
+
+    if anomaly.prompt != classification.prompt:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Anomaly and classification results must reference the same prompt.",
+        )
+
+    decision_result = decide_prompt_risk(anomaly=anomaly, classification=classification)
+    return DecisionResponse(
+        anomaly=anomaly,
+        classification=classification,
+        final_label=decision_result.final_label,
+        is_malicious=decision_result.is_malicious,
+        reasons=decision_result.reasons,
+    )
+
+
+@router.post("/prompt", response_model=DecisionResponse)
+def prompt(request: Request, payload: PredictionRequest) -> DecisionResponse:
+    inference_service = _get_inference_service(request)
+    classification_service = _get_classification_service(request)
+
+    anomaly = PredictionResponse(**inference_service.predict(payload.prompt))
+    classification = ClassificationResponse(**classification_service.predict(payload.prompt))
+    decision_result = decide_prompt_risk(anomaly=anomaly, classification=classification)
+
+    return DecisionResponse(
+        anomaly=anomaly,
+        classification=classification,
+        final_label=decision_result.final_label,
+        is_malicious=decision_result.is_malicious,
+        reasons=decision_result.reasons,
+    )

@@ -1,5 +1,4 @@
-const API_PREDICT = "/api/v1/predict";
-const API_CLASSIFY = "/api/v1/classify";
+const API_PROMPT = "/api/v1/prompt";
 const HISTORY_KEY = "prompt-security-history-v1";
 const MAX_HISTORY = 30;
 
@@ -10,6 +9,9 @@ const clearBtn = document.getElementById("clear-btn");
 const clearHistoryBtn = document.getElementById("clear-history");
 const errorEl = document.getElementById("error");
 const resultEl = document.getElementById("result");
+const finalDecisionBadge = document.getElementById("final-decision-badge");
+const finalDecisionFlag = document.getElementById("final-decision-flag");
+const decisionReasonsList = document.getElementById("decision-reasons-list");
 const decisionBadge = document.getElementById("decision-badge");
 const classificationBadge = document.getElementById("classification-badge");
 const promptDisplay = document.getElementById("prompt-display");
@@ -53,13 +55,15 @@ function renderHistory() {
 
   history.forEach((item) => {
     const li = document.createElement("li");
-    li.className = `history-item ${item.is_anomalous ? "bad" : "ok"}`;
-    const label = item.predicted_label || "n/a";
-    const confidence = Number(item.confidence || 0).toFixed(4);
+    li.className = `history-item ${item.is_malicious ? "bad" : "ok"}`;
+    const label = item.classification?.predicted_label || "n/a";
+    const confidence = Number(item.classification?.confidence || 0).toFixed(4);
+    const anomalyScore = Number(item.anomaly?.anomaly_score || 0).toFixed(4);
+    const anomalyThreshold = Number(item.anomaly?.threshold || 0).toFixed(4);
     li.innerHTML = `
-      <div>${item.prompt}</div>
+      <div>${item.anomaly?.prompt || item.classification?.prompt || "Unknown prompt"}</div>
       <div class="history-meta">
-        ${new Date(item.ts).toLocaleString()} | anomaly=${item.decision_label} (${item.anomaly_score.toFixed(4)}/${item.threshold.toFixed(4)}) | class=${label} (${confidence})
+        ${new Date(item.ts).toLocaleString()} | final=${item.final_label} | anomaly=${item.anomaly?.decision_label || "n/a"} (${anomalyScore}/${anomalyThreshold}) | class=${label} (${confidence})
       </div>
     `;
     historyList.appendChild(li);
@@ -80,16 +84,52 @@ function badgeToneForClassification(result) {
   return "neutral";
 }
 
-function renderResult(anomalyResult, classificationResult) {
+function finalDecisionTone(result) {
+  if (result.is_malicious) {
+    return "bad";
+  }
+
+  const hasUncertainSignal =
+    Boolean(result.classification?.is_uncertain) ||
+    String(result.final_label || "").toLowerCase().includes("review") ||
+    (Array.isArray(result.reasons) && result.reasons.some((reason) => reason.includes("uncertain")));
+
+  if (hasUncertainSignal) {
+    return "warn";
+  }
+
+  return "ok";
+}
+
+function renderResult(result) {
   resultEl.classList.remove("hidden");
+  const anomalyResult = result.anomaly;
+  const classificationResult = result.classification;
+  const finalTone = finalDecisionTone(result);
+  const finalIsMalicious = finalTone === "bad";
   const isBad = Boolean(anomalyResult.is_anomalous);
   const classifierTone = badgeToneForClassification(classificationResult);
+  const reasonItems = Array.isArray(result.reasons) ? result.reasons : [];
+
+  finalDecisionBadge.textContent = result.final_label;
+  finalDecisionBadge.className = `badge ${finalTone}`;
+  finalDecisionFlag.textContent = result.is_malicious ? "Yes" : "No";
+  decisionReasonsList.innerHTML = "";
+  if (!reasonItems.length) {
+    decisionReasonsList.innerHTML = "<li class='history-meta'>No decision reasons returned.</li>";
+  } else {
+    reasonItems.forEach((reason) => {
+      const li = document.createElement("li");
+      li.textContent = reason;
+      decisionReasonsList.appendChild(li);
+    });
+  }
 
   decisionBadge.textContent = anomalyResult.decision_label;
   decisionBadge.className = `badge ${isBad ? "bad" : "ok"}`;
 
   promptDisplay.textContent = anomalyResult.prompt_normalized;
-  promptDisplay.className = isBad ? "prompt-bad" : "prompt-ok";
+  promptDisplay.className = `prompt-${finalTone}`;
 
   scoreEl.textContent = Number(anomalyResult.anomaly_score).toFixed(6);
   thresholdEl.textContent = Number(anomalyResult.threshold).toFixed(6);
@@ -103,8 +143,8 @@ function renderResult(anomalyResult, classificationResult) {
   classificationUncertainEl.textContent = classificationResult.is_uncertain ? "Yes" : "No";
 }
 
-async function runPrediction(prompt) {
-  const response = await fetch(API_PREDICT, {
+async function runPromptAnalysis(prompt) {
+  const response = await fetch(API_PROMPT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ prompt }),
@@ -112,19 +152,6 @@ async function runPrediction(prompt) {
   const body = await response.json();
   if (!response.ok) {
     throw new Error(body.detail || "Request failed");
-  }
-  return body;
-}
-
-async function runClassification(prompt) {
-  const response = await fetch(API_CLASSIFY, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt }),
-  });
-  const body = await response.json();
-  if (!response.ok) {
-    throw new Error(body.detail || "Classification failed");
   }
   return body;
 }
@@ -142,14 +169,10 @@ form.addEventListener("submit", async (event) => {
   runBtn.disabled = true;
   runBtn.textContent = "Running...";
   try {
-    const [anomalyResult, classificationResult] = await Promise.all([
-      runPrediction(prompt),
-      runClassification(prompt),
-    ]);
-    renderResult(anomalyResult, classificationResult);
+    const result = await runPromptAnalysis(prompt);
+    renderResult(result);
     saveHistory({
-      ...anomalyResult,
-      ...classificationResult,
+      ...result,
       ts: new Date().toISOString(),
     });
     renderHistory();

@@ -120,6 +120,27 @@ button.ghost {
   gap: 8px;
 }
 
+.decision-summary {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  background: linear-gradient(180deg, rgba(38, 38, 42, 0.96) 0%, rgba(18, 18, 20, 0.96) 100%);
+}
+
+.decision-reasons {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.reason-list {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  color: var(--text);
+}
+
 .results-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -190,6 +211,11 @@ button.ghost {
 
 .prompt-ok {
   color: var(--ok);
+  font-weight: 700;
+}
+
+.prompt-warn {
+  color: var(--warn);
   font-weight: 700;
 }
 
