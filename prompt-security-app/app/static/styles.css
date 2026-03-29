@@ -255,6 +255,140 @@ button.ghost {
   color: var(--muted);
 }
 
+/* Severity panel */
+.severity-panel {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(38, 38, 42, 0.96) 0%, rgba(18, 18, 20, 0.96) 100%);
+}
+
+.severity-panel h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.severity-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.severity-tier-badge {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  border-radius: 6px;
+  padding: 4px 12px;
+  color: #fff;
+}
+
+.severity-threat-type {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.severity-score-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.severity-score-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease-out;
+}
+
+.severity-details .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px dashed var(--line);
+  padding-bottom: 6px;
+}
+
+.severity-details .row:last-child {
+  border-bottom: none;
+}
+
+.severity-breakdown {
+  margin-top: 12px;
+}
+
+.severity-breakdown h4,
+.severity-intel h4 {
+  margin: 12px 0 8px;
+  font-size: 13px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.severity-breakdown .row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 13px;
+}
+
+.severity-intel {
+  margin-top: 8px;
+}
+
+.intel-source {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: rgba(15, 15, 17, 0.6);
+}
+
+.intel-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.intel-source .row {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+  font-size: 13px;
+}
+
+.intel-source a {
+  color: #60a5fa;
+  text-decoration: none;
+}
+
+.intel-source a:hover {
+  text-decoration: underline;
+}
+
+.intel-actions {
+  margin-top: 8px;
+}
+
+.intel-actions ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.intel-actions li {
+  padding: 2px 0;
+}
+
 @media (max-width: 640px) {
   .results-grid {
     grid-template-columns: 1fr;

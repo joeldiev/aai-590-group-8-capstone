@@ -23,6 +23,15 @@ const classificationThresholdEl = document.getElementById("classification-thresh
 const classificationRuleEl = document.getElementById("classification-rule");
 const classificationUncertainEl = document.getElementById("classification-uncertain");
 const historyList = document.getElementById("history-list");
+const severityPanel = document.getElementById("severity-panel");
+const severityTierBadge = document.getElementById("severity-tier-badge");
+const severityThreatType = document.getElementById("severity-threat-type");
+const severityScoreFill = document.getElementById("severity-score-fill");
+const severityScoreEl = document.getElementById("severity-score");
+const severityThreatConfidence = document.getElementById("severity-threat-confidence");
+const severityLatency = document.getElementById("severity-latency");
+const severityBreakdown = document.getElementById("severity-breakdown");
+const severityIntel = document.getElementById("severity-intel");
 
 function showError(msg) {
   errorEl.textContent = msg;
@@ -141,6 +150,92 @@ function renderResult(result) {
   classificationThresholdEl.textContent = Number(classificationResult.min_confidence).toFixed(6);
   classificationRuleEl.textContent = classificationResult.decision_rule;
   classificationUncertainEl.textContent = classificationResult.is_uncertain ? "Yes" : "No";
+
+  // Severity panel — only shown when malicious
+  if (result.severity) {
+    renderSeverity(result.severity);
+  } else {
+    severityPanel.classList.add("hidden");
+  }
+}
+
+const TIER_COLORS = {
+  critical: "#dc2626",
+  high: "#ea580c",
+  medium: "#ca8a04",
+  low: "#65a30d",
+};
+
+const THREAT_TYPE_LABELS = {
+  injection: "Prompt Injection",
+  jailbreak: "Jailbreak",
+  exfiltration: "Data Exfiltration",
+  unknown_malicious: "Unknown Threat",
+};
+
+function renderSeverity(severity) {
+  severityPanel.classList.remove("hidden");
+
+  const tier = severity.severity_tier;
+  const color = TIER_COLORS[tier] || "#71717a";
+
+  severityTierBadge.textContent = tier.toUpperCase();
+  severityTierBadge.style.background = color;
+
+  severityThreatType.textContent = THREAT_TYPE_LABELS[severity.threat_type] || severity.threat_type;
+
+  // Score bar (0-10 scale)
+  const pct = Math.min((severity.severity_score / 10) * 100, 100);
+  severityScoreFill.style.width = pct + "%";
+  severityScoreFill.style.background = color;
+
+  severityScoreEl.textContent = severity.severity_score + " / 10";
+  severityThreatConfidence.textContent = Number(severity.threat_confidence).toFixed(4);
+  severityLatency.textContent = Number(severity.latency_ms).toFixed(1) + " ms";
+
+  // Scoring breakdown
+  const breakdown = severity.scoring_breakdown || {};
+  const breakdownKeys = Object.keys(breakdown);
+  if (breakdownKeys.length) {
+    severityBreakdown.innerHTML = "<h4>Scoring Breakdown</h4>" +
+      breakdownKeys.map(k => {
+        const label = k.replace(/_/g, " ");
+        return `<div class="row"><span class="k">${label}</span><span>+${breakdown[k]}</span></div>`;
+      }).join("");
+  } else {
+    severityBreakdown.innerHTML = "";
+  }
+
+  // Threat intelligence
+  const intel = severity.threat_intel || {};
+  if (intel.mitre_atlas || intel.owasp) {
+    let html = "<h4>Threat Intelligence</h4>";
+    if (intel.mitre_atlas) {
+      const m = intel.mitre_atlas;
+      html += `<div class="intel-source">
+        <div class="intel-label">MITRE ATLAS</div>
+        <div class="row"><span class="k">Technique</span><span>${m.technique_id} — ${m.name}</span></div>
+        <div class="row"><span class="k">Tactics</span><span>${(m.tactics || []).join(", ")}</span></div>
+        <div class="row"><span class="k">Link</span><span><a href="${m.url}" target="_blank" rel="noopener">View on ATLAS</a></span></div>
+      </div>`;
+    }
+    if (intel.owasp) {
+      const o = intel.owasp;
+      html += `<div class="intel-source">
+        <div class="intel-label">OWASP LLM Top 10</div>
+        <div class="row"><span class="k">Risk</span><span>${o.id} — ${o.name}</span></div>
+        <div class="row"><span class="k">Link</span><span><a href="${o.url}" target="_blank" rel="noopener">View on OWASP</a></span></div>
+      </div>`;
+    }
+    if (intel.recommended_actions) {
+      html += `<div class="intel-actions"><h4>Recommended Actions</h4><ul>` +
+        intel.recommended_actions.map(a => `<li>${a}</li>`).join("") +
+        `</ul></div>`;
+    }
+    severityIntel.innerHTML = html;
+  } else {
+    severityIntel.innerHTML = "";
+  }
 }
 
 async function runPromptAnalysis(prompt) {

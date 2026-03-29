@@ -81,6 +81,9 @@ class Settings:
     embedding_batch_size: int
     max_prompt_length: int
 
+    threat_classifier_dir: Path
+    threat_intel_cache_path: Path
+
     force_cpu: bool
 
     @classmethod
@@ -226,6 +229,20 @@ class Settings:
             ),
             embedding_batch_size=int(os.getenv("EMBEDDING_BATCH_SIZE", "32")),
             max_prompt_length=int(os.getenv("MAX_PROMPT_LENGTH", "20000")),
+            threat_classifier_dir=(
+                project_root
+                / os.getenv(
+                    "THREAT_CLASSIFIER_DIR",
+                    "models/severity/threat_classifier",
+                )
+            ).resolve(),
+            threat_intel_cache_path=(
+                project_root
+                / os.getenv(
+                    "THREAT_INTEL_CACHE_PATH",
+                    "models/severity/threat_intel/threat_mapping.json",
+                )
+            ).resolve(),
             force_cpu=_to_bool(os.getenv("FORCE_CPU"), default=False),
         )
 

@@ -10,6 +10,7 @@ from app.core.config import settings
 from app.core.logging import configure_logging, get_logger
 from app.ml.classification import ClassificationService
 from app.ml.inference import InferenceService
+from app.ml.severity import SeverityService
 
 configure_logging()
 logger = get_logger(__name__)
@@ -37,6 +38,20 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         app.state.classification_service_error = str(exc)
         logger.exception("Classification service failed to initialize: %s", exc)
+
+    # Severity service (threat type classifier + threat intel)
+    app.state.severity_service = None
+    app.state.severity_service_error = None
+    try:
+        severity_service = SeverityService()
+        severity_service.load(
+            threat_classifier_dir=getattr(settings, "threat_classifier_dir", None),
+            threat_intel_cache_path=getattr(settings, "threat_intel_cache_path", None),
+        )
+        app.state.severity_service = severity_service
+    except Exception as exc:
+        app.state.severity_service_error = str(exc)
+        logger.exception("Severity service failed to initialize: %s", exc)
 
     logger.info("Application startup complete.")
     yield

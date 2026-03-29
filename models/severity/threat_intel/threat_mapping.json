@@ -1,0 +1,187 @@
+{
+  "threat_mappings": {
+    "injection": {
+      "mitre_atlas": {
+        "technique_id": "AML.T0051",
+        "name": "LLM Prompt Injection",
+        "url": "https://atlas.mitre.org/techniques/AML.T0051",
+        "tactics": [
+          "execution",
+          "privilege_escalation",
+          "defense_evasion"
+        ],
+        "description": "Prompt injection attacks involve inserting malicious instructions or data into natural language prompts to manipulate the behavior of large language models. Attackers craft inputs containing hidden directives that override the original system prompt or instructions, causing the LLM to execute unintended actions, bypass safety guidelines, or disclose sensitive information. These attacks can occur through direct user input, indirect prompt injection via third-party data sources, or chained attacks across multiple API calls.",
+        "mitigations": [
+          "Implement robust input validation and sanitization for all user-provided content",
+          "Use prompt templates with structured delimiters to separate user input from system instructions",
+          "Apply principle of least privilege when designing LLM system prompts",
+          "Monitor and log all prompt-related activities for anomaly detection",
+          "Implement rate limiting and input length restrictions",
+          "Use secondary validation layers that verify LLM outputs against expected behaviors"
+        ]
+      },
+      "owasp": {
+        "id": "LLM01",
+        "name": "Prompt Injection",
+        "url": "https://genai.owasp.org/llmtop10",
+        "description": "Prompt Injection represents a critical vulnerability in LLM applications where attackers manipulate model inputs through crafted prompts that inject malicious instructions or bypass security controls. Prompt injection can occur directly through user input or indirectly through contaminated data sources, leading to unauthorized actions, data theft, and system compromise.",
+        "prevention": [
+          "Validate and sanitize all input data before passing to LLM APIs",
+          "Implement clear separation between user data and system instructions using structured formatting",
+          "Apply prompt engineering best practices including explicit instruction boundaries and output constraints",
+          "Use secondary validation systems to verify LLM behavior matches intended functionality",
+          "Maintain comprehensive audit logs of all prompt interactions and model responses",
+          "Regularly test and update security controls through adversarial prompt testing"
+        ]
+      },
+      "recommended_actions": [
+        "Deploy input filtering mechanisms that detect and block common prompt injection patterns including but not limited to: instruction overrides, context switching attempts, and role-playing directives",
+        "Implement a prompt template library with validated, production-tested prompts that enforce strict separation between system instructions and user-controlled content",
+        "Establish continuous monitoring for suspicious model behavior including unexpected function calls, data access attempts, or policy violations",
+        "Conduct quarterly red team exercises using known prompt injection techniques to identify vulnerabilities in the system prompt and underlying LLM integration"
+      ]
+    },
+    "jailbreak": {
+      "mitre_atlas": {
+        "technique_id": "AML.T0054",
+        "name": "LLM Jailbreak",
+        "url": "https://atlas.mitre.org/techniques/AML.T0054",
+        "tactics": [
+          "defense_evasion",
+          "privilege_escalation",
+          "resource_development"
+        ],
+        "description": "LLM jailbreaking is a sophisticated attack technique where adversaries craft carefully designed prompts that exploit cognitive biases, role-playing mechanics, or architectural vulnerabilities in language models to circumvent safety guidelines and alignment constraints. Jailbreak attacks utilize various strategies including hypothetical scenarios, authority impersonation, emotional manipulation, and multi-stage reasoning chains to trick models into generating harmful, unethical, or policy-violating content. Successful jailbreaks can enable generation of malware, exploitation guidance, illegal content, and other dangerous outputs.",
+        "mitigations": [
+          "Implement multi-layered safety mechanisms including both prompt-level controls and output filtering",
+          "Use fine-tuning and reinforcement learning from human feedback to strengthen model alignment",
+          "Deploy behavioral guardrails that detect and prevent known jailbreak patterns and techniques",
+          "Establish clear model behavior policies with enforceable constraints and regular testing",
+          "Monitor for emergent jailbreak techniques through adversarial testing and security research",
+          "Implement gradual rollout and staged deployment with continuous monitoring for novel attack vectors"
+        ]
+      },
+      "owasp": {
+        "id": "LLM01",
+        "name": "Prompt Injection (Jailbreak Variant)",
+        "url": "https://genai.owasp.org/llmtop10",
+        "description": "Jailbreak attacks represent an advanced variant of prompt injection specifically designed to circumvent the safety guidelines, content policies, and alignment controls built into large language models. These attacks exploit the cognitive capabilities of LLMs through sophisticated social engineering, hypothetical reasoning, and multi-step reasoning chains to induce policy violations and generate harmful content.",
+        "prevention": [
+          "Implement content policy enforcement at both the prompt and output stages",
+          "Use adversarial testing and red teaming to proactively identify jailbreak vulnerabilities",
+          "Deploy machine learning-based detection systems trained on known and novel jailbreak patterns",
+          "Establish clear usage policies with user acknowledgments and terms of service enforcement",
+          "Maintain detailed audit trails of requests that trigger safety mechanisms or policy violations",
+          "Regularly update safety mechanisms based on emerging jailbreak research and threat intelligence"
+        ]
+      },
+      "recommended_actions": [
+        "Establish a jailbreak detection system that analyzes prompts for multi-stage reasoning chains, role-playing directives, hypothetical scenarios, and authority impersonation patterns before they reach the LLM",
+        "Implement output filtering that examines generated content for policy violations including: harmful instructions, illegal activity guidance, manipulation techniques, and dangerous information that may indicate a successful jailbreak",
+        "Create an automated threat response protocol that triggers upon detection of jailbreak attempts, including: logging incident details, alerting security teams, implementing stricter rate limiting, and escalating to incident response if necessary",
+        "Conduct monthly jailbreak vulnerability assessments using established attack techniques (DAN prompts, hypothetical framing, role-playing scenarios) and publish findings for remediation"
+      ]
+    },
+    "exfiltration": {
+      "mitre_atlas": {
+        "technique_id": "AML.T0048",
+        "name": "LLM Data Leakage",
+        "url": "https://atlas.mitre.org/techniques/AML.T0048",
+        "tactics": [
+          "exfiltration",
+          "collection",
+          "reconnaissance"
+        ],
+        "description": "LLM Data Leakage occurs when language models inadvertently or through targeted attacks disclose sensitive information including: training data, system prompts, user credentials, personal identifiable information, confidential business data, or other protected content. Data leakage can result from prompt injection attacks, membership inference, model inversion attacks, unintended memorization of training data, or improper handling of sensitive context in conversations. Attackers may exploit LLM behavior through carefully crafted prompts that request sensitive information or attempt to expose model internals.",
+        "mitigations": [
+          "Implement data minimization principles by limiting sensitive data passed to LLM systems",
+          "Use differential privacy techniques during model training to reduce memorization of sensitive data",
+          "Implement rate limiting and quota systems for information retrieval requests",
+          "Apply output filtering to detect and prevent leakage of sensitive patterns and data formats",
+          "Establish data retention policies that limit how long sensitive context is maintained",
+          "Use secure enclave or sandbox environments for processing of highly sensitive information",
+          "Implement prompt-level controls that explicitly prevent disclosure of specified sensitive data"
+        ]
+      },
+      "owasp": {
+        "id": "LLM06",
+        "name": "Sensitive Information Disclosure",
+        "url": "https://genai.owasp.org/llmtop10",
+        "description": "Sensitive Information Disclosure vulnerabilities in LLM applications occur when models leak, expose, or disclose protected or confidential information through their responses. This includes exposure of training data, system prompts, API keys, credentials, personal data, or business-critical information. Data leakage can result from poor prompt design, inadequate input validation, insufficient access controls, or exploitation through targeted attacks.",
+        "prevention": [
+          "Conduct a comprehensive data inventory and classify information by sensitivity level before integration with LLM systems",
+          "Implement strict access controls and authentication mechanisms for all data sources connected to LLM applications",
+          "Design prompts with explicit instructions prohibiting the disclosure or repetition of sensitive information",
+          "Apply data masking and tokenization techniques for personally identifiable information and credentials",
+          "Monitor and filter LLM outputs for patterns matching sensitive data formats (credit cards, SSNs, API keys, emails)",
+          "Establish data retention and deletion policies that minimize the duration sensitive information is available to LLMs",
+          "Implement user consent and notification mechanisms for any data processing by LLM systems"
+        ]
+      },
+      "recommended_actions": [
+        "Deploy a data leakage detection system that analyzes LLM outputs using regex patterns and machine learning models to identify and redact sensitive information including: PII patterns, API credentials, database connection strings, internal system identifiers, and confidential business data",
+        "Implement context isolation mechanisms that ensure sensitive information from one conversation or user session cannot be referenced or leaked in other interactions through prompt-level guardrails and context window management",
+        "Establish a comprehensive data handling policy that specifies which data types can be processed by LLM systems, with automatic redaction rules for high-sensitivity data such as financial records, medical information, and authentication credentials",
+        "Conduct quarterly data leakage risk assessments by executing targeted prompts designed to elicit sensitive information disclosure and analyzing LLM responses for unintended data exposure"
+      ]
+    },
+    "unknown_malicious": {
+      "mitre_atlas": {
+        "technique_id": "AML.T0000",
+        "name": "Unknown/Emerging Malicious Behavior",
+        "url": "https://atlas.mitre.org/techniques/AML.T0000",
+        "tactics": [
+          "execution",
+          "impact",
+          "initial_access"
+        ],
+        "description": "Unknown_malicious threat classification represents emerging, novel, or unclassified adversarial techniques against LLM systems that do not fit established threat categories. These include zero-day attacks, novel prompt injection variants, chain-of-thought manipulation, adversarial examples, model poisoning through supply chain compromise, and behavioral anomalies that indicate compromise or misuse. Detection of unknown malicious activities requires baseline behavior modeling, anomaly detection, and continuous threat intelligence integration.",
+        "mitigations": [
+          "Establish baseline behavior models for normal LLM system operations using statistical profiling",
+          "Implement anomaly detection systems that identify deviations from expected behavior patterns",
+          "Maintain active threat intelligence feeds and integrate emerging threat data into security systems",
+          "Conduct regular security assessments and penetration testing against LLM systems",
+          "Implement comprehensive logging and monitoring for all LLM interactions and system changes",
+          "Establish incident response procedures for handling unknown or emerging threats",
+          "Participate in security research and information sharing communities to learn about novel attack vectors"
+        ]
+      },
+      "owasp": {
+        "id": "LLM09",
+        "name": "Overreliance on LLM Outputs",
+        "url": "https://genai.owasp.org/llmtop10",
+        "description": "Overreliance on LLM outputs refers to the risks associated with blindly trusting or implementing LLM-generated responses without sufficient human oversight, validation, or verification. This can enable novel attacks where adversaries exploit LLM behavior to cause downstream harm, trigger unintended system actions, or create security vulnerabilities through unvalidated automation.",
+        "prevention": [
+          "Implement human-in-the-loop verification for all critical LLM-generated outputs and decisions",
+          "Establish validation workflows that cross-check LLM outputs against authoritative sources or rule-based systems",
+          "Define clear scope and limitations for LLM functionality with documented guardrails on autonomy",
+          "Implement user awareness training on LLM capabilities, limitations, and potential failure modes",
+          "Establish governance frameworks that require approval workflows for high-impact LLM decisions",
+          "Monitor LLM system behavior for anomalies and deviations from expected outputs"
+        ]
+      },
+      "recommended_actions": [
+        "Implement real-time anomaly detection using behavioral baselines and statistical analysis to identify unusual request patterns, unexpected output characteristics, or signs of unknown attack techniques against the LLM system",
+        "Deploy a threat intelligence integration layer that continuously monitors security research, vulnerability disclosures, and threat reports to identify emerging techniques and automatically update detection rules",
+        "Establish automated incident response workflows that quarantine suspicious interactions, trigger alerts to security teams, and implement protective measures (throttling, isolation, retraining) when unknown malicious patterns are detected",
+        "Conduct monthly red team exercises focused on discovering novel attack techniques and emerging threat vectors that do not fit existing threat categories, with findings documented and integrated into security controls"
+      ]
+    }
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "created_date": "2026-03-27",
+    "schema_version": "threat_mapping_v1",
+    "threat_types": [
+      "injection",
+      "jailbreak",
+      "exfiltration",
+      "unknown_malicious"
+    ],
+    "last_updated": "2026-03-27",
+    "framework_versions": {
+      "mitre_atlas": "latest",
+      "owasp_genai": "2024"
+    }
+  }
+}
