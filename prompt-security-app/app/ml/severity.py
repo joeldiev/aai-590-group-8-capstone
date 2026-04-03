@@ -5,7 +5,12 @@ severity scoring, and threat intelligence lookup.
 Activated ONLY when both classifiers agree a prompt is malicious.
 No LLM involved.
 """
+# severity evaluatin service module 
+# NO LLM 
+# evaluation services , severity scoring, threat intelligence lookup
+#only activated when both classifiers agree a prompt is malicious 
 
+#import all packages for severity service 
 from __future__ import annotations
 
 import logging
@@ -18,10 +23,11 @@ from app.ml.threat_intel import ThreatIntelService
 from app.schemas.prediction import PredictionResponse
 from app.schemas.classification import ClassificationResponse
 
+#logger 
 logger = logging.getLogger(__name__)
 
 
-# Severity tiers
+# severity tiers 
 SEVERITY_TIERS = {
     "critical": {"min_score": 8, "color": "#dc2626"},
     "high": {"min_score": 5, "color": "#ea580c"},
@@ -29,7 +35,7 @@ SEVERITY_TIERS = {
     "low": {"min_score": 0, "color": "#65a30d"},
 }
 
-# Threat type risk weights
+# threat for type risk
 THREAT_TYPE_WEIGHTS = {
     "exfiltration": 2,
     "injection": 2,
@@ -37,7 +43,7 @@ THREAT_TYPE_WEIGHTS = {
     "unknown_malicious": 1,
 }
 
-
+#data class for severity result 
 @dataclass(frozen=True)
 class SeverityResult:
     severity_tier: str
@@ -49,7 +55,7 @@ class SeverityResult:
     scoring_breakdown: dict[str, int]
     latency_ms: float
 
-
+#severity service class 
 class SeverityService:
     """Orchestrates severity evaluation for malicious prompts."""
 
@@ -74,7 +80,7 @@ class SeverityService:
         """Load all severity sub-components.
 
         Args:
-            threat_classifier_dir: Path to TF-IDF + XGBoost artifacts.
+            threat_classifier_dir: Path to TF-IDF + sklearn classifier artifacts.
             threat_intel_cache_path: Path to threat_mapping.json.
         """
         # Load threat type classifier

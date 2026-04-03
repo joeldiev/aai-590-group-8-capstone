@@ -1,5 +1,5 @@
 """
-Lightweight threat type classifier using TF-IDF + XGBoost.
+Lightweight threat type classifier using TF-IDF + sklearn GradientBoosting.
 
 Classifies malicious prompts into subtypes:
   - injection: attempts to override system instructions
@@ -9,7 +9,10 @@ Classifies malicious prompts into subtypes:
 
 No LLM required. Inference latency: ~1-5ms.
 """
+#lightweight classifier with TF-IDF and gradient boosting 
+#classifies malicious prompts into subtypes (jailbreak, injection,exfltration,unknown)
 
+#import packs 
 from __future__ import annotations
 
 import json
@@ -20,9 +23,10 @@ from pathlib import Path
 import joblib
 import numpy as np
 
+#log 
 logger = logging.getLogger(__name__)
 
-
+#dataclass
 @dataclass(frozen=True)
 class ThreatClassification:
     threat_type: str
@@ -30,9 +34,9 @@ class ThreatClassification:
     confidence: float
     class_probabilities: dict[str, float]
 
-
+#threat type 
 class ThreatTypeClassifier:
-    """TF-IDF + XGBoost threat type classifier."""
+    """TF-IDF + sklearn GradientBoosting threat type classifier."""
 
     def __init__(
         self,
