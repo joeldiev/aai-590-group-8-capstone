@@ -3,14 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prompt Security UI</title>
+  <title>Adaptive Guardrail Layer (AGL)</title>
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
   <main class="container">
     <section class="panel">
-      <h1>Prompt Risk Checker</h1>
-      <p class="subtitle">Submit a prompt to run both anomaly detection and classification, then review the combined risk signal.</p>
+      <div class="hero-head">
+        <div>
+          <h1>Adaptive Guardrail Layer (AGL)</h1>
+          <p class="subtitle">Submit a prompt to run both anomaly detection and classification, then review the combined risk signal.</p>
+        </div>
+        <button type="button" id="theme-toggle" class="ghost theme-toggle" aria-label="Switch theme">Dark Mode</button>
+      </div>
       <form id="predict-form">
         <label for="prompt-input">Prompt</label>
         <textarea id="prompt-input" rows="6" placeholder="Type a prompt..."></textarea>

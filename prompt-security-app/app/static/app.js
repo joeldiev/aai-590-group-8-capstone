@@ -1,12 +1,15 @@
 const API_PROMPT = "/api/v1/prompt";
 const HISTORY_KEY = "prompt-security-history-v1";
+const THEME_KEY = "prompt-security-theme-v1";
 const MAX_HISTORY = 30;
 
+const rootEl = document.documentElement;
 const form = document.getElementById("predict-form");
 const promptInput = document.getElementById("prompt-input");
 const runBtn = document.getElementById("run-btn");
 const clearBtn = document.getElementById("clear-btn");
 const clearHistoryBtn = document.getElementById("clear-history");
+const themeToggleBtn = document.getElementById("theme-toggle");
 const errorEl = document.getElementById("error");
 const resultEl = document.getElementById("result");
 const finalDecisionBadge = document.getElementById("final-decision-badge");
@@ -23,6 +26,25 @@ const classificationThresholdEl = document.getElementById("classification-thresh
 const classificationRuleEl = document.getElementById("classification-rule");
 const classificationUncertainEl = document.getElementById("classification-uncertain");
 const historyList = document.getElementById("history-list");
+
+function getSavedTheme() {
+  const savedTheme = localStorage.getItem(THEME_KEY);
+  return savedTheme === "dark" ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+  rootEl.dataset.theme = theme;
+  if (themeToggleBtn) {
+    themeToggleBtn.textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
+    themeToggleBtn.setAttribute("aria-pressed", String(theme === "dark"));
+  }
+}
+
+function toggleTheme() {
+  const nextTheme = rootEl.dataset.theme === "dark" ? "light" : "dark";
+  localStorage.setItem(THEME_KEY, nextTheme);
+  applyTheme(nextTheme);
+}
 
 function showError(msg) {
   errorEl.textContent = msg;
@@ -243,4 +265,9 @@ clearHistoryBtn.addEventListener("click", () => {
   renderHistory();
 });
 
+if (themeToggleBtn) {
+  themeToggleBtn.addEventListener("click", toggleTheme);
+}
+
+applyTheme(getSavedTheme());
 renderHistory();

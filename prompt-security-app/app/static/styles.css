@@ -1,4 +1,32 @@
 :root {
+  --bg: #f6f2e8;
+  --bg-glow: #fffdf7;
+  --panel: rgba(255, 252, 245, 0.9);
+  --panel-strong: #fff8ef;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --ok: #198754;
+  --bad: #d64545;
+  --warn: #d98324;
+  --line: rgba(31, 41, 55, 0.12);
+  --line-strong: rgba(31, 41, 55, 0.22);
+  --accent: #1f2937;
+  --accent-strong: #4b5563;
+  --input-bg: rgba(255, 255, 255, 0.95);
+  --history-bg: rgba(255, 250, 243, 0.98);
+  --shadow: 0 18px 40px rgba(120, 94, 56, 0.14);
+  --button-text: #fffdf8;
+  --button-bg: linear-gradient(135deg, #355c7d 0%, #6c5b7b 100%);
+  --ghost-bg: rgba(255, 255, 255, 0.72);
+  --ghost-text: var(--text);
+  --decision-bg: linear-gradient(180deg, rgba(255, 249, 240, 0.98) 0%, rgba(248, 241, 230, 0.98) 100%);
+  --card-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 244, 236, 0.98) 100%);
+  --badge-neutral-bg: rgba(31, 41, 55, 0.06);
+  --badge-neutral-line: rgba(31, 41, 55, 0.1);
+  --focus-ring: rgba(53, 92, 125, 0.18);
+}
+
+:root[data-theme="dark"] {
   --bg: #0b0b0c;
   --bg-glow: #1a1a1d;
   --panel: rgba(18, 18, 20, 0.9);
@@ -14,6 +42,16 @@
   --accent-strong: #d4d4d8;
   --input-bg: rgba(9, 9, 11, 0.92);
   --history-bg: rgba(14, 14, 16, 0.94);
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  --button-text: #111113;
+  --button-bg: linear-gradient(135deg, #fafafa 0%, #d4d4d8 100%);
+  --ghost-bg: rgba(28, 28, 31, 0.9);
+  --ghost-text: var(--text);
+  --decision-bg: linear-gradient(180deg, rgba(38, 38, 42, 0.96) 0%, rgba(18, 18, 20, 0.96) 100%);
+  --card-bg: linear-gradient(180deg, rgba(28, 28, 31, 0.96) 0%, rgba(15, 15, 17, 0.96) 100%);
+  --badge-neutral-bg: rgba(255, 255, 255, 0.08);
+  --badge-neutral-line: rgba(255, 255, 255, 0.1);
+  --focus-ring: rgba(255, 255, 255, 0.08);
 }
 
 * {
@@ -25,10 +63,17 @@ body {
   font-family: "Avenir Next", "Segoe UI", sans-serif;
   color: var(--text);
   background:
+    radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.75) 0%, transparent 28%),
+    radial-gradient(circle at 100% 10%, rgba(212, 165, 116, 0.12) 0%, transparent 20%),
+    linear-gradient(160deg, var(--bg-glow) 0%, var(--bg) 44%, #efe6d8 100%);
+  min-height: 100vh;
+}
+
+:root[data-theme="dark"] body {
+  background:
     radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.05) 0%, transparent 28%),
     radial-gradient(circle at 100% 10%, rgba(255, 255, 255, 0.03) 0%, transparent 20%),
     linear-gradient(160deg, var(--bg-glow) 0%, var(--bg) 38%, #050505 100%);
-  min-height: 100vh;
 }
 
 .container {
@@ -43,12 +88,20 @@ body {
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 16px;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  box-shadow: var(--shadow);
   backdrop-filter: blur(14px);
 }
 
 h1, h2 {
   margin: 0 0 8px;
+}
+
+.hero-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 10px;
 }
 
 .subtitle {
@@ -76,7 +129,7 @@ textarea {
 
 textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 textarea::placeholder {
@@ -95,15 +148,20 @@ button {
   padding: 10px 14px;
   font-weight: 600;
   cursor: pointer;
-  background: linear-gradient(135deg, #fafafa 0%, #d4d4d8 100%);
-  color: #111113;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.22);
+  background: var(--button-bg);
+  color: var(--button-text);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
 }
 
 button.ghost {
-  background: rgba(28, 28, 31, 0.9);
-  color: var(--text);
+  background: var(--ghost-bg);
+  color: var(--ghost-text);
   border: 1px solid var(--line);
+  box-shadow: none;
+}
+
+.theme-toggle {
+  white-space: nowrap;
 }
 
 .error {
@@ -124,7 +182,7 @@ button.ghost {
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 14px;
-  background: linear-gradient(180deg, rgba(38, 38, 42, 0.96) 0%, rgba(18, 18, 20, 0.96) 100%);
+  background: var(--decision-bg);
 }
 
 .decision-reasons {
@@ -151,7 +209,7 @@ button.ghost {
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 14px;
-  background: linear-gradient(180deg, rgba(28, 28, 31, 0.96) 0%, rgba(15, 15, 17, 0.96) 100%);
+  background: var(--card-bg);
 }
 
 .result-card h3 {
@@ -200,8 +258,8 @@ button.ghost {
 
 .badge.neutral {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--badge-neutral-bg);
+  border: 1px solid var(--badge-neutral-line);
 }
 
 .prompt-bad {
@@ -256,6 +314,15 @@ button.ghost {
 }
 
 @media (max-width: 640px) {
+  .hero-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .theme-toggle {
+    width: 100%;
+  }
+
   .results-grid {
     grid-template-columns: 1fr;
   }
