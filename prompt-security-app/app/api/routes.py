@@ -163,4 +163,5 @@ def prompt(request: Request, payload: PredictionRequest) -> DecisionResponse:
         final_label=decision_result.final_label,
         is_malicious=decision_result.is_malicious,
         reasons=decision_result.reasons,
+        severity=severity_response,
     )
