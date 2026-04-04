@@ -160,7 +160,6 @@ def prompt(request: Request, payload: PredictionRequest) -> DecisionResponse:
     return DecisionResponse(
         anomaly=anomaly,
         classification=classification,
-        severity=severity_response,
         final_label=decision_result.final_label,
         is_malicious=decision_result.is_malicious,
         reasons=decision_result.reasons,

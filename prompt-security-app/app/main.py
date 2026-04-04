@@ -12,7 +12,8 @@ from app.core.logging import configure_logging, get_logger
 from app.ml.classification import ClassificationService
 from app.ml.inference import InferenceService
 from app.ml.severity import SeverityService
-#configure logging 
+#configure logging
+
 configure_logging()
 logger = get_logger(__name__)
 
@@ -49,6 +50,7 @@ async def lifespan(app: FastAPI):
         "threat_intel_cache_path": getattr(settings, "threat_intel_cache_path", None),
     }
     logger.info("Severity service configured for lazy loading.")
+
 
     logger.info("Application startup complete.")
     yield
