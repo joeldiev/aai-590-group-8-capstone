@@ -1,5 +1,7 @@
+#import fast api modules for ui 
 from fastapi import APIRouter, HTTPException, Request, status
 
+# import app mods for backend processing 
 from app.core.config import settings
 from app.ml.decision import decide_prompt_risk
 from app.schemas.classification import ClassificationRequest, ClassificationResponse
@@ -7,9 +9,10 @@ from app.schemas.decision import DecisionRequest, DecisionResponse
 from app.schemas.health import HealthResponse
 from app.schemas.prediction import PredictionRequest, PredictionResponse
 
+#router 
 router = APIRouter(tags=["prompt-security"])
 
-
+# get inference service function for requests 
 def _get_inference_service(request: Request):
     service = getattr(request.app.state, "inference_service", None)
     service_error = getattr(request.app.state, "inference_service_error", None)
@@ -25,7 +28,7 @@ def _get_inference_service(request: Request):
 
     return service
 
-
+#get classification service function for requests 
 def _get_classification_service(request: Request):
     service = getattr(request.app.state, "classification_service", None)
     service_error = getattr(request.app.state, "classification_service_error", None)
@@ -41,7 +44,7 @@ def _get_classification_service(request: Request):
 
     return service
 
-
+#health check endpoint for API 
 @router.get("/health", response_model=HealthResponse)
 def health(request: Request) -> HealthResponse:
     anomaly_service = getattr(request.app.state, "inference_service", None)
@@ -67,21 +70,21 @@ def health(request: Request) -> HealthResponse:
         anomaly_error=anomaly_error,
     )
 
-
+#router posts 
 @router.post("/predict", response_model=PredictionResponse)
 def predict(request: Request, payload: PredictionRequest) -> PredictionResponse:
     service = _get_inference_service(request)
     result = service.predict(payload.prompt)
     return PredictionResponse(**result)
 
-
+#router posts 
 @router.post("/classify", response_model=ClassificationResponse)
 def classify(request: Request, payload: ClassificationRequest) -> ClassificationResponse:
     service = _get_classification_service(request)
     result = service.predict(payload.prompt)
     return ClassificationResponse(**result)
 
-
+#router posts 
 @router.post("/decision", response_model=DecisionResponse)
 def decision(payload: DecisionRequest) -> DecisionResponse:
     anomaly = payload.anomaly
@@ -102,7 +105,7 @@ def decision(payload: DecisionRequest) -> DecisionResponse:
         reasons=decision_result.reasons,
     )
 
-
+#router posts 
 @router.post("/prompt", response_model=DecisionResponse)
 def prompt(request: Request, payload: PredictionRequest) -> DecisionResponse:
     inference_service = _get_inference_service(request)
@@ -112,10 +115,53 @@ def prompt(request: Request, payload: PredictionRequest) -> DecisionResponse:
     classification = ClassificationResponse(**classification_service.predict(payload.prompt))
     decision_result = decide_prompt_risk(anomaly=anomaly, classification=classification)
 
+    # Severity evaluation — only when both classifiers flag malicious
+    # Lazy-loads severity service on first malicious detection to avoid
+    # startup segfault with the previous XGBoost model + torch in same process.
+    severity_response = None
+    if decision_result.is_malicious:
+        severity_service = getattr(request.app.state, "severity_service", None)
+
+        # Lazy init on first use
+        if severity_service is None:
+            config = getattr(request.app.state, "severity_service_config", {})
+            if config:
+                try:
+                    from app.ml.severity import SeverityService
+                    severity_service = SeverityService()
+                    severity_service.load(
+                        threat_classifier_dir=config.get("threat_classifier_dir"),
+                        threat_intel_cache_path=config.get("threat_intel_cache_path"),
+                    )
+                    request.app.state.severity_service = severity_service
+                except Exception:
+                    import logging
+                    logging.getLogger(__name__).exception("Severity service lazy-load failed")
+
+        if severity_service and severity_service.is_loaded:
+            from app.schemas.severity import SeverityResponse
+
+            severity_result = severity_service.evaluate(
+                text=payload.prompt,
+                anomaly=anomaly,
+                classification=classification,
+            )
+            severity_response = SeverityResponse(
+                severity_tier=severity_result.severity_tier,
+                severity_score=severity_result.severity_score,
+                threat_type=severity_result.threat_type,
+                threat_confidence=severity_result.threat_confidence,
+                threat_class_probabilities=severity_result.threat_class_probabilities,
+                threat_intel=severity_result.threat_intel,
+                scoring_breakdown=severity_result.scoring_breakdown,
+                latency_ms=severity_result.latency_ms,
+            )
+
     return DecisionResponse(
         anomaly=anomaly,
         classification=classification,
         final_label=decision_result.final_label,
         is_malicious=decision_result.is_malicious,
         reasons=decision_result.reasons,
+        severity=severity_response,
     )

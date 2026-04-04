@@ -141,6 +141,55 @@ function renderResult(result) {
   classificationThresholdEl.textContent = Number(classificationResult.min_confidence).toFixed(6);
   classificationRuleEl.textContent = classificationResult.decision_rule;
   classificationUncertainEl.textContent = classificationResult.is_uncertain ? "Yes" : "No";
+
+  // Severity panel
+  const severityPanel = document.getElementById("severity-panel");
+  if (result.severity) {
+    const sev = result.severity;
+    severityPanel.classList.remove("hidden");
+
+    const tierBadge = document.getElementById("severity-tier-badge");
+    tierBadge.textContent = sev.severity_tier.toUpperCase();
+    tierBadge.className = `severity-tier-badge tier-${sev.severity_tier}`;
+
+    document.getElementById("severity-threat-type").textContent = sev.threat_type;
+    document.getElementById("severity-score").textContent = `${sev.severity_score} / 10`;
+    document.getElementById("severity-threat-confidence").textContent = Number(sev.threat_confidence).toFixed(4);
+    document.getElementById("severity-latency").textContent = `${Number(sev.latency_ms).toFixed(1)} ms`;
+
+    const fillEl = document.getElementById("severity-score-fill");
+    fillEl.style.width = `${(sev.severity_score / 10) * 100}%`;
+    fillEl.className = `severity-score-fill tier-${sev.severity_tier}`;
+
+    const breakdownEl = document.getElementById("severity-breakdown");
+    if (sev.scoring_breakdown && Object.keys(sev.scoring_breakdown).length) {
+      breakdownEl.innerHTML = "<h4>Score Breakdown</h4>" +
+        Object.entries(sev.scoring_breakdown)
+          .map(([k, v]) => `<div class="row"><span class="k">${k}</span><span>+${v}</span></div>`)
+          .join("");
+    } else {
+      breakdownEl.innerHTML = "";
+    }
+
+    const intelEl = document.getElementById("severity-intel");
+    if (sev.threat_intel && Object.keys(sev.threat_intel).length) {
+      const intel = sev.threat_intel;
+      let html = "<h4>Threat Intelligence</h4>";
+      if (intel.mitre_atlas) {
+        const m = intel.mitre_atlas;
+        html += `<div class="row"><span class="k">MITRE ATLAS</span><span>${m.technique_id || ""} - ${m.technique_name || ""}</span></div>`;
+      }
+      if (intel.owasp) {
+        const o = intel.owasp;
+        html += `<div class="row"><span class="k">OWASP</span><span>${o.category_id || ""} - ${o.category_name || ""}</span></div>`;
+      }
+      intelEl.innerHTML = html;
+    } else {
+      intelEl.innerHTML = "";
+    }
+  } else {
+    severityPanel.classList.add("hidden");
+  }
 }
 
 async function runPromptAnalysis(prompt) {
