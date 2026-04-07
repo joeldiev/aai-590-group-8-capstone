@@ -208,3 +208,13 @@ When both models agree a prompt is malicious, a post-hoc severity pipeline activ
 - **scikit-learn** for baselines and preprocessing
 - **sentence-transformers** for semantic embeddings
 - **pandas**, **numpy**, **matplotlib**, **seaborn** for data analysis and visualization
+
+## AI Use Disclosure
+
+This project made use of AI-assisted tools during development:
+
+- **Claude Code (Anthropic)** — Used for code scaffolding, debugging assistance, refactoring, documentation drafting, and iterative development of the training pipeline, evaluation harness, and web application. AI suggestions were reviewed, tested, and modified by team members before integration.
+- **ChatGPT / Codex (OpenAI)** — Used for research support, brainstorming, code assistance, and drafting portions of the written report.
+- **Gemini (Google)** — Used for select development and research tasks.
+
+All AI-generated content was critically reviewed by team members. Model architecture decisions, experimental design, data analysis, and final interpretations are the original work of the team. No AI tool was used to generate evaluation results or fabricate data.
