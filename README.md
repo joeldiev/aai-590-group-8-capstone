@@ -62,10 +62,7 @@ aai-590-group-8-capstone/
 │   ├── config.py             # Paths, hyperparameters, label maps
 │   ├── data/
 │   │   ├── build_dataset.py          # Read CSV, dedup, balance, stratified split
-│   │   ├── load_datasets.py          # Per-source dataset loaders
-│   │   ├── tokenize_dataset.py       # RoBERTa tokenization
-│   │   ├── label_mapping.py          # Dataset label normalization helpers
-│   │   └── synthetic_exfiltration.py # Synthetic exfiltration prompt generation
+│   │   └── tokenize_dataset.py       # RoBERTa tokenization
 │   ├── models/
 │   │   ├── classifier.py            # RoBERTa sequence classifier
 │   │   ├── anomaly_detector.py      # Anomaly detection module
@@ -78,8 +75,7 @@ aai-590-group-8-capstone/
 │   │   ├── baselines.py          # Keyword blocklist, TF-IDF/SVM baselines
 │   │   └── visualizations.py     # Plots and figures
 │   └── utils/
-│       ├── reproducibility.py    # Seed setting
-│       └── io_utils.py           # Save/load helpers
+│       └── reproducibility.py    # Seed setting
 ├── prompt-security-app/      # Deployed web application (FastAPI + UI)
 │   ├── app/
 │   │   ├── main.py               # FastAPI application entry point
