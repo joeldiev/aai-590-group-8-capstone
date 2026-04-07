@@ -47,21 +47,26 @@ models/
 │       ├── label_mapping.json
 │       ├── inference_config.json
 │       └── classification_threshold.json
-└── feature_engineering/
-    └── feature_pipeline/
-        ├── feature_pipeline.joblib
-        ├── fill_values.joblib
-        ├── variance_selector.joblib
-        ├── correlation_drop_columns.joblib
-        ├── pca.joblib
-        ├── phrase_rules.json
-        └── feature_pipeline_metadata.json
+├── feature_engineering/
+│   └── feature_pipeline/
+│       ├── feature_pipeline.joblib        # Optional, if full feature bundle export exists
+│       ├── fill_values.joblib             # Optional, if full feature bundle export exists
+│       ├── variance_selector.joblib       # Optional, if full feature bundle export exists
+│       ├── correlation_drop_columns.joblib # Optional, if full feature bundle export exists
+│       ├── pca.joblib
+│       ├── phrase_rules.json
+│       └── feature_pipeline_metadata.json
+└── severity/
+    └── threat_intel/
+        └── threat_mapping.json
 ```
 
 Notes:
 - `feature_engineering/feature_pipeline/pca.joblib` and `phrase_rules.json` are used by anomaly feature generation.
 - `anomaly_detection/denoising_autoencoder/best/scaler.joblib` and `feature_columns.joblib` are required for anomaly model input alignment.
 - If the feature pipeline folder only contains `pca.joblib`, `phrase_rules.json`, and `feature_pipeline_metadata.json`, that is expected; the anomaly scaler and feature columns still come from the anomaly artifact export.
+- `severity/threat_intel/threat_mapping.json` supports the threat intelligence portion of `/api/v1/prompt` responses.
+- If severity classifier artifacts are not present, the app falls back to heuristic threat-type classification while still using the threat intelligence mapping.
 
 ## Configuration
 The app reads `.env` automatically at startup.
@@ -102,6 +107,26 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 The server starts from inside `prompt-security-app`, but model artifact paths resolve to the repository-level `models/` directory via `PROJECT_ROOT=..`.
 
+After startup, verify that the app loaded correctly:
+
+```bash
+curl http://127.0.0.1:8000/api/v1/health
+```
+
+Confirm that:
+- `model_loaded` is `true`
+- `classifier_model_loaded` is `true`
+- `anomaly_error` and `classifier_error` are `null`
+
+## Docker note
+
+A Dockerfile is included, but it assumes the required `models/` artifacts are available in the image build context. The documented local startup flow above is the supported development path.
+
+If you deploy with Docker, verify that the image includes:
+- the FastAPI application code
+- the expected `models/` directory layout
+- environment/path settings that match your artifact locations
+
 ## Frontend UI
 The frontend is served by the same FastAPI app (no separate frontend server needed).
 
@@ -121,10 +146,6 @@ UI behavior:
 - keeps prompt history in browser `localStorage` (with a clear-history button)
 
 ## Test the endpoints
-
-```bash
-curl http://127.0.0.1:8000/api/v1/health
-```
 
 ```bash
 curl -X POST http://127.0.0.1:8000/api/v1/predict \
