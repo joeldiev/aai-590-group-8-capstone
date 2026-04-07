@@ -277,3 +277,6 @@ This project made use of AI-assisted tools during development:
 - **Gemini (Google)** — Used for select development and research tasks.
 
 All AI-generated content was critically reviewed by team members. Model architecture decisions, experimental design, data analysis, and final interpretations are the original work of the team. No AI tool was used to generate evaluation results or fabricate data.
+
+#### License
+This project is licensed under the GNU License - see the [LICENSE.txt](LICENSE.txt) file for details.
