@@ -60,7 +60,7 @@ The repository includes multiple validation approaches so AGL can be compared ag
 
 Validation scripts live in `scripts/`, and the recommended step-by-step usage guide is:
 
-- [scripts/VALIDATION_README.md](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/VALIDATION_README.md)
+- [scripts/VALIDATION_README.md](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/scripts/VALIDATION_README.md)
 
 That guide covers:
 
@@ -70,7 +70,7 @@ That guide covers:
 
 If you only need one starting point for all validation commands, use:
 
-- [scripts/VALIDATION_README.md](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/VALIDATION_README.md)
+- [scripts/VALIDATION_README.md](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/scripts/VALIDATION_README.md)
 
 ## Repository Structure
 
