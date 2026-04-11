@@ -72,6 +72,11 @@ If you only need one starting point for all validation commands, use:
 
 - [scripts/VALIDATION_README.md](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/scripts/VALIDATION_README.md)
 
+Validation summary results:
+
+- `results/validation_comparison/`
+- [Latest validation comparison report](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/results/validation_comparison/latest_validation_comparison_20260411_124135.md)
+
 ## Repository Structure
 
 ```
