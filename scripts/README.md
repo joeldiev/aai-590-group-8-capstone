@@ -2,11 +2,11 @@
 
 This folder contains utility scripts for the project.
 
-For the full validation workflow, including how to run each evaluator and how to combine them into one comparison report, start with [VALIDATION_README.md](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/VALIDATION_README.md).
+For the full validation workflow, including how to run each evaluator and how to combine them into one comparison report, start with [VALIDATION_README.md](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/scripts/VALIDATION_README.md).
 
 ## Evaluate `/api/v1/prompt`
 
-Use [`evaluate_prompt_endpoint.py`](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/evaluate_prompt_endpoint.py) to test the FastAPI prompt-security endpoint against a labeled dataset and generate an accuracy report.
+Use [`evaluate_prompt_endpoint.py`](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/scripts/evaluate_prompt_endpoint.py) to test the FastAPI prompt-security endpoint against a labeled dataset and generate an accuracy report.
 
 ### What it does
 
@@ -86,7 +86,7 @@ python3 scripts/evaluate_prompt_endpoint.py --limit 10
 
 ## Evaluate A Deterministic Rule-Based Filter
 
-Use [`evaluate_rule_based_filter.py`](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/evaluate_rule_based_filter.py) to score the same labeled validation prompts with a conservative, deterministic filter instead of the FastAPI model stack.
+Use [`evaluate_rule_based_filter.py`](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/scripts/evaluate_rule_based_filter.py) to score the same labeled validation prompts with a conservative, deterministic filter instead of the FastAPI model stack.
 
 ### What it does
 
@@ -144,7 +144,7 @@ Generated files:
 
 ## Evaluate LLM Refusal Behavior
 
-Use [`evaluate_llm_refusal.py`](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/evaluate_llm_refusal.py) to send the validation prompts to the OpenAI API and evaluate whether the model answered or refused each prompt.
+Use [`evaluate_llm_refusal.py`](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/scripts/evaluate_llm_refusal.py) to send the validation prompts to the OpenAI API and evaluate whether the model answered or refused each prompt.
 
 ### What it does
 
@@ -207,7 +207,7 @@ Generated files:
 
 ## Summarize The Latest Validation Results
 
-Use [`summarize_latest_validation_results.py`](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/summarize_latest_validation_results.py) to compare the latest available run for each validation approach.
+Use [`summarize_latest_validation_results.py`](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/scripts/summarize_latest_validation_results.py) to compare the latest available run for each validation approach.
 
 ### What it does
 
@@ -249,7 +249,7 @@ Generated files:
 
 ## Evaluate A Deterministic Keyword Filter
 
-Use [`evaluate_keyword_filter.py`](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/evaluate_keyword_filter.py) to score the same labeled validation prompts with a simpler keyword-matching baseline.
+Use [`evaluate_keyword_filter.py`](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/scripts/evaluate_keyword_filter.py) to score the same labeled validation prompts with a simpler keyword-matching baseline.
 
 ### What it does
 

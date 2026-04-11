@@ -175,9 +175,9 @@ This script:
 
 ## Related Files
 
-- [scripts/README.md](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/README.md)
-- [scripts/evaluate_prompt_endpoint.py](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/evaluate_prompt_endpoint.py)
-- [scripts/evaluate_rule_based_filter.py](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/evaluate_rule_based_filter.py)
-- [scripts/evaluate_keyword_filter.py](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/evaluate_keyword_filter.py)
-- [scripts/evaluate_llm_refusal.py](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/evaluate_llm_refusal.py)
-- [scripts/summarize_latest_validation_results.py](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/summarize_latest_validation_results.py)
+- [scripts/README.md](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/scripts/README.md)
+- [scripts/evaluate_prompt_endpoint.py](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/scripts/evaluate_prompt_endpoint.py)
+- [scripts/evaluate_rule_based_filter.py](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/scripts/evaluate_rule_based_filter.py)
+- [scripts/evaluate_keyword_filter.py](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/scripts/evaluate_keyword_filter.py)
+- [scripts/evaluate_llm_refusal.py](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/scripts/evaluate_llm_refusal.py)
+- [scripts/summarize_latest_validation_results.py](https://github.com/joeldiev/aai-590-group-8-capstone/blob/main/scripts/summarize_latest_validation_results.py)
