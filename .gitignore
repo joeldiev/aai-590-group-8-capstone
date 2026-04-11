@@ -92,7 +92,6 @@ model/
 checkpoints/
 artifacts/
 outputs/
-results/
 runs/
 .cache/
 huggingface/
@@ -104,12 +103,6 @@ hf_cache/
 *.pbtxt
 *.tflite
 
-# Allow prompt endpoint Markdown reports, but keep generated data artifacts ignored.
-!results/
-results/*
-!results/prompt_endpoint_eval/
-results/prompt_endpoint_eval/*
-!results/prompt_endpoint_eval/**/
-!results/prompt_endpoint_eval/**/report.md
-results/prompt_endpoint_eval/**/*.csv
-results/prompt_endpoint_eval/**/*.jsonl
+# Validation outputs
+# Keep reports and summaries in git, but ignore row-level CSV exports.
+results/**/*.csv

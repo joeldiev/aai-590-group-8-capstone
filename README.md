@@ -49,6 +49,25 @@ For prompts classified as malicious, a **severity evaluation pipeline** activate
 
 Evaluated on a 2,000-prompt validation dataset. The hybrid architecture achieves **perfect recall** for malicious prompts (zero false negatives), which is critical for security applications where missed threats can lead to system compromise. Full evaluation report: `results/prompt_endpoint_eval/`.
 
+## Validation Workflows
+
+The repository includes multiple validation approaches so AGL can be compared against simpler baselines and an external LLM refusal baseline:
+
+- `AGL` — end-to-end endpoint validation of the proposed solution
+- `Rule-Based` — deterministic regex-style filter
+- `Keyword` — deterministic keyword filter
+- `LLM Refusal` — OpenAI API answer-vs-refusal baseline
+
+Validation scripts live in `scripts/`, and the recommended step-by-step usage guide is:
+
+- [scripts/VALIDATION_README.md](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/VALIDATION_README.md)
+
+That guide covers:
+
+- how to run each validation
+- where each validation writes its results
+- how to generate one comparison summary across the latest runs
+
 ## Repository Structure
 
 ```
@@ -108,7 +127,12 @@ aai-590-group-8-capstone/
 │   └── prompt_endpoint_eval/     # Automated validation reports
 ├── docs/                     # Project documents and report drafts
 ├── scripts/
-│   ├── evaluate_prompt_endpoint.py  # Automated endpoint evaluation script
+│   ├── VALIDATION_README.md        # How to run all validations and compare them
+│   ├── evaluate_prompt_endpoint.py # AGL endpoint validation
+│   ├── evaluate_rule_based_filter.py # Deterministic rule-based baseline
+│   ├── evaluate_keyword_filter.py  # Deterministic keyword baseline
+│   ├── evaluate_llm_refusal.py     # OpenAI refusal baseline
+│   ├── summarize_latest_validation_results.py # Cross-validation comparison report
 │   └── download_datasets.py        # Dataset download helper
 └── requirements.txt          # Python dependencies
 ```
