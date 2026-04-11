@@ -2,7 +2,7 @@
 
 This folder contains utility scripts for the project.
 
-For the full validation workflow, including how to run each evaluator and how to combine them into one comparison report, see [VALIDATION_README.md](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/VALIDATION_README.md).
+For the full validation workflow, including how to run each evaluator and how to combine them into one comparison report, start with [VALIDATION_README.md](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/VALIDATION_README.md).
 
 ## Evaluate `/api/v1/prompt`
 

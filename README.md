@@ -51,12 +51,12 @@ Evaluated on a 2,000-prompt validation dataset. The hybrid architecture achieves
 
 ## Validation Workflows
 
-The repository includes multiple validation approaches so AGL can be compared against simpler baselines and an external LLM refusal baseline:
+The repository includes multiple validation approaches so AGL can be compared against simpler baselines and an external LLM detection baseline:
 
 - `AGL` — end-to-end endpoint validation of the proposed solution
 - `Rule-Based` — deterministic regex-style filter
 - `Keyword` — deterministic keyword filter
-- `LLM Refusal` — OpenAI API answer-vs-refusal baseline
+- `LLM Detection` — OpenAI API answer-vs-refusal baseline
 
 Validation scripts live in `scripts/`, and the recommended step-by-step usage guide is:
 
@@ -67,6 +67,10 @@ That guide covers:
 - how to run each validation
 - where each validation writes its results
 - how to generate one comparison summary across the latest runs
+
+If you only need one starting point for all validation commands, use:
+
+- [scripts/VALIDATION_README.md](/Users/apadin/Desktop/Capstone/aai-590-group-8-capstone/scripts/VALIDATION_README.md)
 
 ## Repository Structure
 

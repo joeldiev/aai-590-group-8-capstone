@@ -7,7 +7,7 @@ The validation approaches currently supported are:
 - `AGL` — the proposed solution, evaluated through the deployed `/api/v1/prompt` endpoint
 - `Rule-Based` — deterministic regex-style malicious prompt detection
 - `Keyword` — deterministic keyword-matching malicious prompt detection
-- `LLM Refusal` — OpenAI API baseline based on answer-vs-refusal behavior
+- `LLM Detection` — OpenAI API baseline based on answer-vs-refusal behavior
 
 All validation scripts assume the labeled dataset is available at:
 
