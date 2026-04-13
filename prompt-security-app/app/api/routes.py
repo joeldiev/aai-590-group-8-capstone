@@ -1,4 +1,15 @@
-#import fast api modules for ui 
+"""
+FastAPI route definitions for the AGL Prompt Security API.
+
+Endpoints:
+  GET  /health   — service health and model readiness
+  POST /predict  — anomaly detection (autoencoder reconstruction error)
+  POST /classify — RoBERTa binary classification
+  POST /decision — combined decision from pre-computed anomaly + classification
+  POST /prompt   — end-to-end analysis (anomaly + classification + decision + severity)
+"""
+
+#import fast api modules for ui
 from fastapi import APIRouter, HTTPException, Request, status
 
 # import app mods for backend processing 

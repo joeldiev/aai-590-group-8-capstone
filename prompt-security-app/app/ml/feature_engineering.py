@@ -1,3 +1,21 @@
+"""
+Feature engineering pipeline for the AGL anomaly detector.
+
+Converts a raw prompt string into a fixed-width numeric feature vector
+suitable for the denoising autoencoder.  Features fall into three groups:
+
+1. **Lexical / structural** — token counts, punctuation ratios, whitespace,
+   non-ASCII characters, markdown symbols, etc.
+2. **Phrase-based indicators** — hit counts against curated phrase lists for
+   instruction override, roleplay, payload requests, social engineering,
+   and obfuscation patterns.
+3. **Dense semantic embeddings** — sentence-transformer encoding reduced via
+   PCA to a compact representation.
+
+Artifacts (PCA model, phrase rules, scaler, feature selectors) are loaded
+from the ``models/feature_engineering/`` directory at startup.
+"""
+
 from __future__ import annotations
 
 import json
@@ -30,6 +48,8 @@ DEFAULT_PHRASE_RULES = {
 
 
 class FeatureEngineer:
+    """Builds numeric feature vectors from raw prompt text for the autoencoder."""
+
     def __init__(self, settings, artifact_registry) -> None:
         self.settings = settings
         self.artifacts = artifact_registry
@@ -41,6 +61,7 @@ class FeatureEngineer:
         self.pca_components = DEFAULT_PCA_COMPONENTS
 
     def load(self) -> None:
+        """Load phrase rules, PCA model, tokenizer, and embedding model."""
         self._load_phrase_rules()
         self._load_pca()
         self._load_tokenizer()
@@ -48,6 +69,14 @@ class FeatureEngineer:
         self.embedding_model = SentenceTransformer(self.embedding_model_name)
 
     def build_feature_frame(self, prompt: str) -> Tuple[pd.DataFrame, Dict[str, str]]:
+        """Convert a raw prompt into a single-row DataFrame of engineered features.
+
+        Args:
+            prompt: Raw user prompt text.
+
+        Returns:
+            Tuple of (feature_dataframe, metadata_dict).
+        """
         if self.embedding_model is None:
             raise RuntimeError("Embedding model has not been loaded.")
 
@@ -65,6 +94,14 @@ class FeatureEngineer:
         return df, metadata
 
     def transform_for_model(self, raw_feature_df: pd.DataFrame) -> np.ndarray:
+        """Apply feature selection, imputation, variance filtering, and scaling.
+
+        Args:
+            raw_feature_df: Output of ``build_feature_frame``.
+
+        Returns:
+            Numpy array ready for autoencoder input.
+        """
         df = raw_feature_df.copy()
 
         if self.artifacts.selected_features is not None:

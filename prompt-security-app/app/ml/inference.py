@@ -1,3 +1,14 @@
+"""
+Anomaly detection inference service for the AGL web application.
+
+Loads the denoising autoencoder checkpoint and feature-engineering artifacts,
+then scores incoming prompts by reconstruction error (MSE).  Prompts whose
+error exceeds a calibrated threshold are flagged as anomalous.
+
+Supports both the current DenoisingAutoencoder architecture and legacy
+checkpoint layouts via an automatic fallback path.
+"""
+
 from __future__ import annotations
 
 import re
@@ -15,6 +26,8 @@ logger = get_logger(__name__)
 
 
 class CheckpointAutoencoder(nn.Module):
+    """Thin wrapper that pairs encoder/decoder Sequential blocks for legacy checkpoints."""
+
     def __init__(self, input_dim: int, encoder: nn.Sequential, decoder: nn.Sequential) -> None:
         super().__init__()
         self.input_dim = int(input_dim)
@@ -26,6 +39,8 @@ class CheckpointAutoencoder(nn.Module):
 
 
 class InferenceService:
+    """Anomaly detection service — loads autoencoder and scores prompts by reconstruction error."""
+
     def __init__(self, settings) -> None:
         self.settings = settings
         self.artifacts = ArtifactRegistry(settings=settings)
@@ -41,6 +56,7 @@ class InferenceService:
         return "cuda" if torch.cuda.is_available() else "cpu"
 
     def load(self) -> None:
+        """Load feature engineer, autoencoder weights, and anomaly threshold."""
         logger.info("Initializing inference service on device=%s", self.device)
 
         self.artifacts.load()
@@ -288,6 +304,14 @@ class InferenceService:
         return input_dim, encoder_dims, latent_dim
 
     def predict(self, prompt: str) -> Dict[str, Any]:
+        """Score a prompt and return anomaly detection results.
+
+        Args:
+            prompt: Raw user prompt text.
+
+        Returns:
+            Dict with anomaly_score, threshold, is_anomalous flag, and metadata.
+        """
         anomaly_score, feature_count, metadata = self.score_prompt(prompt)
         is_anomalous = anomaly_score >= self.threshold
 
@@ -304,6 +328,11 @@ class InferenceService:
         }
 
     def score_prompt(self, prompt: str) -> tuple[float, int, dict[str, str]]:
+        """Compute reconstruction MSE for a single prompt.
+
+        Returns:
+            Tuple of (anomaly_score, feature_count, metadata_dict).
+        """
         if not self.is_loaded or self.model is None or self.feature_engineer is None:
             raise RuntimeError("Inference service is not loaded.")
 

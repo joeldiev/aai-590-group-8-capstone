@@ -12,6 +12,8 @@ Defending Generative AI Systems Against Prompt Injection and Jailbreak Attacks
 
 *AAI-590 Capstone — University of San Diego, MS Applied Artificial Intelligence*
 
+**Project Status: Completed**
+
 ## Project Overview
 
 AGL is a lightweight, high-performance security filter designed to intercept and classify malicious inputs before they reach a production LLM. It performs **binary classification** of user prompts:
@@ -309,3 +311,11 @@ All AI-generated content was critically reviewed by team members. Model architec
 
 #### License
 This project is licensed under the GNU License - see the [LICENSE.txt](LICENSE.txt) file for details.
+
+## Acknowledgments
+
+We would like to thank:
+
+- **Professor Anna Marbut** and the USD AAI-590 teaching staff for guidance throughout the capstone project.
+- The creators and maintainers of the open-source datasets used in this research, including WildGuardMix (Allen AI), deepset/prompt-injections, and the Kaggle contributors whose adversarial prompt corpora made this work possible.
+- The open-source communities behind PyTorch, Hugging Face Transformers, FastAPI, and scikit-learn.

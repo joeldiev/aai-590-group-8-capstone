@@ -1,3 +1,12 @@
+"""
+RoBERTa classification service for the AGL web application.
+
+Loads a fine-tuned RoBERTa sequence-classification checkpoint and runs
+single-prompt inference.  Returns predicted label, confidence, per-class
+probabilities, and an uncertainty flag based on a configurable minimum
+confidence threshold.
+"""
+
 from __future__ import annotations
 
 import json
@@ -21,6 +30,8 @@ def _load_json_if_exists(path: Path) -> Dict[str, Any] | None:
 
 
 class ClassificationService:
+    """Loads and serves a fine-tuned RoBERTa binary classifier."""
+
     def __init__(self, settings) -> None:
         self.settings = settings
         self.device = self._resolve_device()
@@ -41,6 +52,7 @@ class ClassificationService:
         return "cuda" if torch.cuda.is_available() else "cpu"
 
     def load(self) -> None:
+        """Load tokenizer, model weights, label mapping, and threshold config."""
         checkpoint_dir = self.settings.classifier_model_dir
         logger.info("Loading classifier from %s on device=%s", checkpoint_dir, self.device)
 
@@ -80,6 +92,15 @@ class ClassificationService:
         return {i: f"class_{i}" for i in range(num_labels)}
 
     def predict(self, prompt: str) -> Dict[str, Any]:
+        """Run inference on a single prompt and return classification results.
+
+        Args:
+            prompt: Raw user prompt text.
+
+        Returns:
+            Dict with predicted_label, confidence, class_probabilities,
+            uncertainty flag, and metadata.
+        """
         if not self.is_loaded or self.model is None or self.tokenizer is None:
             raise RuntimeError("Classification service is not loaded.")
 
